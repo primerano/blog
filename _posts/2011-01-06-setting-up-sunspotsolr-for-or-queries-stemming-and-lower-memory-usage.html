@@ -1,0 +1,127 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Setting up Sunspot/Solr for OR queries, stemming and lower memory usage '
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 192
+wordpress_url: http://www.tonycode.com/blog/?p=192
+date: '2011-01-06 13:15:04 -0500'
+date_gmt: '2011-01-06 18:15:04 -0500'
+categories:
+- tech
+- rails
+tags: []
+comments:
+- id: 95598
+  author: Tom
+  author_email: tom@codigy.nl
+  author_url: ''
+  date: '2011-02-25 13:03:31 -0500'
+  date_gmt: '2011-02-25 18:03:31 -0500'
+  content: "Hey Tony, thanks a lot for this blogpost!\r\n\r\nI was trying to set up
+    Solr with the AND query you're describing, but it didn't work by changing the
+    solrconfig.  {minimum_match 1} fixed it, so that's really cool!\r\n\r\nThanks
+    :)"
+- id: 108302
+  author: Tomas
+  author_email: aaa@seznam.cz
+  author_url: ''
+  date: '2011-07-12 03:18:21 -0400'
+  date_gmt: '2011-07-12 08:18:21 -0400'
+  content: Hello, thank you for this article. I wanted OR in query too without success.
+    This article helped me.
+- id: 113761
+  author: Kirk Quesnelle
+  author_email: kirk@kirkquesnelle.com
+  author_url: http://kirkquesnelle.com
+  date: '2011-09-15 14:55:29 -0400'
+  date_gmt: '2011-09-15 19:55:29 -0400'
+  content: Wow Thank you very very much for this!
+- id: 117208
+  author: John Wang
+  author_email: Djmnemonic@gmail.com
+  author_url: ''
+  date: '2011-11-05 14:31:22 -0400'
+  date_gmt: '2011-11-05 19:31:22 -0400'
+  content: Amazing. Just the two things I've been scouring the web for. Where do you
+    go to find this stuff? I can't find a good API reference anywhere.
+- id: 117370
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2011-11-07 22:58:55 -0500'
+  date_gmt: '2011-11-08 03:58:55 -0500'
+  content: "Hey John,   It has been a while since I wrote this so I don't recall where
+    I got all the information.  :-)  I suspect it was a combination of reading the
+    code, posting to a listserv (or 2) and a bit of googling.    \r\n\r\nI'm glad
+    I posted my notes as several folks seem to be benefiting from them."
+- id: 120431
+  author: Jakub Godawa
+  author_email: jakub.godawa@gmail.com
+  author_url: http://github.com/vyogot
+  date: '2011-12-15 07:59:50 -0500'
+  date_gmt: '2011-12-15 12:59:50 -0500'
+  content: Thanks a lot man... I was just about to build 10 dismaxes for 10 different
+    languages. This saved me a lot of work as a user experience after all is not so
+    bad :D
+- id: 198361
+  author: santosh
+  author_email: bt.santosh01@gmail.com
+  author_url: ''
+  date: '2013-04-17 04:02:16 -0400'
+  date_gmt: '2013-04-17 09:02:16 -0400'
+  content: Thanks a lot, this info saved me a lot of time.
+- id: 211502
+  author: Relicset
+  author_email: relicset@yahoo.in
+  author_url: ''
+  date: '2013-09-17 13:23:49 -0400'
+  date_gmt: '2013-09-17 18:23:49 -0400'
+  content: "I need to search each and every keyword using rails sunspot solr,But lots
+    of problem solving it.\r\n\r\nHere is my SO link which describes my problem can
+    you solve it.\r\n\r\nhttp://stackoverflow.com/questions/18820145/rails-sunspot-solr-search-by-keywords"
+---
+<p>As I keep finding in Rails 3, the Gems I used in Rails 2 no longer work or have fallen out of favor.   In Rails 2 <a href="https://github.com/jkraemer/acts_as_ferret" target="_blank">acts_as_ferret</a> met my searching needs but after submitting some fixes for Rails 3 and Ruby 1.9.2, I was still having issues so I moved on to <a href="https://github.com/outoftime/sunspot" target="_blank">Sunspot</a>.</p>
+<p>One of the 1st things I wanted to change with Sunspot was to make the default boolean operator OR.   This means when someone searches for "car window" they will get results that match car or window.</p>
+<p>Not being a Solr expert my 1st thought was that all I needed to do was change</p>
+<pre>&lt;solrQueryParser defaultOperator="AND"/&gt;</pre>
+<p>to</p>
+<pre>&lt;solrQueryParser defaultOperator="OR"/&gt;</pre>
+<p>But it didn't work.   After some research and digging through the logs I learned that Sunspot is using the dismax request handler.  To make a long story short, dismax ignores the defaultOperator and uses a minimum_match field.   The good news here is that setting this field to 1 in your search query is easy and gives you the same function as  defaultOperator="OR".</p>
+<p>In your controller your search would look something like this.</p>
+<pre>@articles = Article.search do
+  keywords(actual_search) {minimum_match 1}
+end</pre>
+<p>Next thing I wanted was for car searches to return results for cars and other stems.   This required a 1 line change in schema.xml</p>
+<p>In the &lt;analyzer&gt; block just add &lt;filter class="solr.SnowballPorterFilterFactory" language="English" /&gt;</p>
+<pre>      &lt;analyzer&gt;
+        &lt;tokenizer class="solr.StandardTokenizerFactory"/&gt;
+        &lt;filter class="solr.StandardFilterFactory"/&gt;
+        &lt;filter class="solr.LowerCaseFilterFactory"/&gt;
+        &lt;filter class="solr.SnowballPorterFilterFactory" language="English" /&gt;
+      &lt;/analyzer&gt;
+</pre>
+<p>Finally, because the model I am searching is small and Java eats quite a bit of memory I wanted to reduce the Solr server's memory footprint.  This may come back to bite me as my dataset grows but for now this is working fine.  To adjust the memory parameters used when using rake sunspot:solr:start just edit your sunspot.yml file and add min_memory and max_memory lines.</p>
+<pre>development:
+  solr:
+    hostname: localhost
+    port: 8982
+    log_level: DEBUG
+    min_memory: 64M
+    max_memory: 64M
+</pre>
+<p>This will result in -Xms64M -Xmx64M being sent to java on startup.</p>
+<pre id="_mcePaste" style="position: absolute; left: -10000px; top: 434px; width: 1px; height: 1px; overflow: hidden;">      &lt;analyzer&gt;
+        &lt;tokenizer class="solr.StandardTokenizerFactory"/&gt;
+        &lt;filter class="solr.StandardFilterFactory"/&gt;
+        &lt;filter class="solr.LowerCaseFilterFactory"/&gt;
+        &lt;filter class="solr.SnowballPorterFilterFactory" language="English" /&gt;
+      &lt;/analyzer&gt;</pre>

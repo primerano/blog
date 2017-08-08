@@ -1,0 +1,53 @@
+---
+layout: page
+status: publish
+published: true
+title: Social Aggregators
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 314
+wordpress_url: http://blog.tonycode.com/?page_id=314
+date: '2011-12-20 21:24:13 -0500'
+date_gmt: '2011-12-21 02:24:13 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h3>Overview</h3>
+<p>Writing this on wiki since I'll be moving things around as I go.  ;-)</p>
+<p>There are too many Social Networks and keeping up with friends across the universe of networks that they interact with is a challenge. Rising to the challenge are several social aggregators. These aggregators focus on bringing you the LifeStreams of people you care about.</p>
+<h3>Feed Categories</h3>
+<p>LifeStreams focus on feeds that are about your life.</p>
+<ul>
+<li>What you are doing right now</li>
+<li>What pictures you recently uploaded</li>
+<li>What you posted to your blog.</li>
+</ul>
+<p>Feeds on news and other events that are published by 3rd parties are not part of a LifeStream. They may still be feeds but they are not part of your life.<br />
+The following discussion focuses on the challenges of LifeStream aggregation.</p>
+<h3>Life with a single social network</h3>
+<p>If everyone updated their status, uploaded pictures and blogged on a single social network LifeStreams would be easy. The standard Facebook News Feed would be all we needed to keep up to date with what our friend were up to. Of course if there was a single network it would probably be pretty boring. Competition between social networks means we'll always have the latest and greatest features, and if we don't we'll eventually move to where the best features are.</p>
+<p>The problem with this competition is that our online life is fragmented and our friends are in various places. If we want to keep up with everyone we need to sign into several services or find a way to aggregate information on the people we care about.</p>
+<h3>The rise of LifeStream Aggregators</h3>
+<h4>FriendFeed</h4>
+<p>Many of the things our friends do are available via public feeds. This makes pulling them together in a meaningful way easy. <a title="http://friendfeed.com" href="http://friendfeed.com/" rel="nofollow">FriendFeed</a> makes this easy but you need to define what you want people to see in your feed (Me Feed) and then people can subscribe to your feed.</p>
+<p>For example. I can quickly build a feed on <a title="http://friendfeed.com" href="http://friendfeed.com/" rel="nofollow">FriendFeed</a> that includes my <a title="http://friendfeed.com/primerano" href="http://friendfeed.com/primerano" rel="nofollow">Twitter, Pownce, Flickr and Blog feeds</a>. Then my friends that use FriendFeed can subscribe to my feed to build a LifeStream of people they follow. FriendFeed makes this easy but its another account you need to create.</p>
+<h4>AIM Buddy Feed</h4>
+<p>AIM has a buddy feed that does almost the same thing as FriendFeed but some of the 1 click steps in FriendFeed may take you a handful. The AIM feed feature is not well advertised but if you set it up your updates will show up in your friends buddy lists. Setup your feed <a title="https://settings.aim.com/en-us/buddyupdates" href="https://settings.aim.com/en-us/buddyupdates" rel="nofollow">here</a>. If AOL promotes this feature and your friends are already on AIM this will save you from registering at yet another site. The aggregation of all LifeStreams of your buddies has been at dashboard.aim.com at times and then disappears. I hope it comes back soon.</p>
+<h4>Social Thing</h4>
+<p>SocialThing makes aggregation simpler than FriendFeed and AIM Buddy Feed because they took a different approach. Instead of requiring all your friends to join SocialThing they just pull your friend's feeds from the networks you already belong to. They also let you post messages to your various networks.</p>
+<p>They can do this because they ask you for your name and password on these sites. Personally I find this scary. Some sites like Facebook can give 3rd party sites tokens that they can store and use to access your account so the password is never sent to the 3rd party site. But sites like Twitter do not have this capability so sites like SocialThing need to save your username and password.</p>
+<p>What do you get for giving up your usernames and passwords? Power!</p>
+<p>Some services like Twitter have APIs to fetch your aggregated LifeStream in a single call. This makes SocialThing's job easy. Other APIs require a 2 step process to get the aggregated LifeStream.</p>
+<ul>
+<li>Step 1 -- Fetch my friends</li>
+<li>Step 2 -- Fetch my friend's "Me" Feeds.</li>
+</ul>
+<p>This second scenario presents a scaling nightmare. If I login to SocialThing and I have 5 networks that require a 2 step process and I have approximately 50 friends in each, they need to make (5 + 50*5) 255 calls anytime a visit. They then need to keep polling these services to keep them up to date. This is a lot of work for SocialThing to be doing but it is also beating up on my 5 networks. As SocialThing grows its user base they might find their IP Address block as they overload the sites they are polling to build LifeStreams.</p>
+<p>Another nice feature that you get by giving SocialThing your password is the ability to send messages to your various networks from SocialThing. With 1 click you can update your status on Twitter, Facebook and Pownce.</p>

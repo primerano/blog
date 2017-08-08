@@ -1,0 +1,110 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Speeding up Rails apps by tuning the Ruby GC '
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 492
+wordpress_url: http://blog.tonycode.com/?p=492
+date: '2013-04-28 20:13:18 -0400'
+date_gmt: '2013-04-29 01:13:18 -0400'
+categories:
+- Uncategorized
+tags: []
+comments:
+- id: 2282228
+  author: Lourens
+  author_email: lourens@methodmissing.com
+  author_url: http://www.bearmetal.eu
+  date: '2015-02-06 08:25:07 -0500'
+  date_gmt: '2015-02-06 13:25:07 -0500'
+  content: 'We, Bear Metal, have been working on a solution for GC tuning - https://tunemygc.com
+    . Works with Ruby 2.1, 2.2 and Rails. Instructions for getting started with the
+    agent: https://github.com/bear-metal/tunemygc#tunemygc---optimal-mri-ruby-21-garbage-collection1'
+---
+<p>Ever since moving to Ruby 1.9 I've suffered through slow startup times with Rails apps. The first improvement came when a patch to require was included in 1.9.3. This sped things up a bit but for some reason the GC configs have escaped my radar until now.</p>
+<p>Rather than blindly use the configuration variables that have been posted around I wanted to understand them a little before implementing them.</p>
+<p>Several posts, including this very good one <a title="Improve Rails loading time" href="http://stackoverflow.com/questions/12892937/improve-rails-loading-time">Improve Rails loading time - Stack Overflow,</a> talk about the following parameters that can be set in your environment.</p>
+<pre>RUBY_HEAP_MIN_SLOTS=800000
+RUBY_HEAP_FREE_MIN=100000
+RUBY_HEAP_SLOTS_INCREMENT=300000
+RUBY_HEAP_SLOTS_GROWTH_FACTOR=1
+RUBY_GC_MALLOC_LIMIT=79000000</pre>
+<p><strong>The trouble is, only 3 of these 5 exist in 1.9.3. One has been renamed and 2 are gone.</strong></p>
+<p>Here is what we have</p>
+<pre>grep getenv gc.c     
+malloc_limit_ptr = getenv("RUBY_GC_MALLOC_LIMIT");     
+heap_min_slots_ptr = getenv("RUBY_HEAP_MIN_SLOTS");     
+free_min_ptr = getenv("RUBY_FREE_MIN");</pre>
+<p>RUBY_FREE_HEAP_MIN is just RUBY_FREE_MIN and the HEAP_SLOTS are gone. I haven't looked if the were in 1.9.2 or 1.8.7.</p>
+<p>Ok.  so we have the 3 settings that are floating around the web.</p>
+<pre>RUBY_HEAP_MIN_SLOTS=800000   # in code default is HEAP_MIN_SLOTS 10000
+RUBY_FREE_MIN=100000   # in code default is FREE_MIN  4096
+RUBY_GC_MALLOC_LIMIT=79000000  # in code default is GC_MALLOC_LIMIT 8000000</pre>
+<p>Your first question, assuming you know a bit about C and heaps, is what is a slot and how big is it.  As it turns out it varies.  On some platforms it is as low as 20 bytes packed.</p>
+<p>from gc.c</p>
+<pre>#if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__CYGWIN__)
+#pragma pack(push, 1) /* magic for reducing sizeof(RVALUE): 24 -&gt; 20 */
+#endif</pre>
+<p>Doing a quick build on CentOS we can find the size of the RVALUE.</p>
+<pre>mkdir ~/ruby
+cd ~/ruby
+wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p392.tar.gz
+tar -zxvf ruby-1.9.3-p392.tar.gz
+# make sure debug is on
+CFLAGS='-g -ggdb' ./configure --enable-debug-env   --prefix=/tmp/ruby --disable-install-doc --with-opt-dir=/tmp/ruby/lib
+make 
+make install
+gdb /tmp/ruby/bin/ruby
+p sizeof(RVALUE)
+$1 = 40</pre>
+<p>It is 40 bytes on CentOS.  If you want to verify the environment variables I grep'd above, they are in ~/ruby/ruby-1.9.3-p392/gc.c</p>
+<p>Allocating 800,000 40 Byte slots would consume 32,000,000 bytes.  This seems a reasonable number as even a basic rails application will quickly consume 32MB.  Yes I know this is &lt; 32MB.  I'm not sure why we're not working with multiples of 1024.</p>
+<p>Ok, next what is the RUBY_GC_MALLOC_LIMIT?</p>
+<p>One post I was reading said it was the number of structures allocated. If that was the case I think it would just be called RUBY_HEAP_MAX_SLOTS.. Looking at the code it appears to be the size in bytes before garbage collection kicks in.  I haven't done C code in a while so please correct me.</p>
+<p>That leaves the RUBY_FREE_MIN setting. I'll read the code later but apparently this is the target number of free slots after GC is run. If not met a new heap is allocated. A heap by the way is 16K if I am reading the code correctly.</p>
+<p>Now lets look at the default settings</p>
+<pre><strong>HEAP_MIN_SLOTS 10000</strong>
+<strong>FREE_MIN  4096</strong>
+<strong>GC_MALLOC_LIMIT 8000000</strong></pre>
+<p>Without any changes (using the defaults),</p>
+<ul>
+<li>We will run GC every time 8MB are allocated.</li>
+<li>The initial heap will have 10,000 slots which consume 400,00 bytes.</li>
+<li>After each GC run more heap is added if there are less than 4096 slots.</li>
+</ul>
+<p>In general, for rails apps these are much too low and should be bumped. But how much?</p>
+<p>The settings that have been mentioned before are.</p>
+<ul>
+<li>RUBY_HEAP_MIN_SLOTS=800000</li>
+<li>RUBY_FREE_MIN=100000</li>
+<li>RUBY_GC_MALLOC_LIMIT=79000000</li>
+</ul>
+<p>I have a MONSTER rails app so I wanted to see what using similar values would get me.</p>
+<p>Running</p>
+<pre>time bundle exec rails runner 'puts "x"'
+results in
+34.16user 2.17system 0:36.42elapsed 99%CPU (0avgtext+0avgdata 642832maxresident)
+
+RUBY_HEAP_MIN_SLOTS=800000 RUBY_FREE_MIN=100000 RUBY_GC_MALLOC_LIMIT=89000000 time bundle exec rails runner 'puts "x"'
+results in
+14.41user 2.18system 0:16.67elapsed 99%CPU (0avgtext+0avgdata 884672maxresident)</pre>
+<p>Wow. 17 seconds is still pretty miserable but not as bad as 36 seconds.</p>
+<p>The issue with setting RUBY_GC_MALLOC_LIMIT high is your app will likely consume more memory as the GC is not running as often.</p>
+<p>After playing with the values for a while and looking at my app's memory consumption I came up with these values.</p>
+<pre>export    RUBY_HEAP_MIN_SLOTS=800000  # Start with 800000 40 byte slots for 32M which is about 2000 heaps
+export          RUBY_FREE_MIN=32768  # 80 heaps at a time for about 1MB steps  -- good compromise
+export RUBY_GC_MALLOC_LIMIT=30000000  # When to start GC, - app is at 5.6% vs 5.1 memory- start time at 20.5 - 10% mem growth.</pre>
+<p>This cut my startup time by about 40% and only increased memory usage by about 10%.   If I had more free memory I would go higher on the RUBY_GC_MALLOC_LIMIT.</p>
+<p>One more thing of note. When using passenger I don't think a wrapper script is needed anymore..</p>
+<p>See <a href="http://blog.phusion.nl/2008/12/16/passing-environment-variables-to-ruby-from-phusion-passenger/">http://blog.phusion.nl/2008/12/16/passing-environment-variables-to-ruby-from-phusion-passenger/</a></p>
+<p>I simply added the above variables to /etc/profile, did an apache restart and they were in effect.   I suspect newer versions of passenger load the environment of the user they run as.   I need to confirm.  Perhaps it is something with my setup that allows it to work.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

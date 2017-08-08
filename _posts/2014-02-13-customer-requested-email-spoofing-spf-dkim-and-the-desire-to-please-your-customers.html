@@ -1,0 +1,101 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Customer requested email spoofing: SPF, DKIM and the desire to please your
+  customers'
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 529
+wordpress_url: http://blog.tonycode.com/?p=529
+date: '2014-02-13 20:10:26 -0500'
+date_gmt: '2014-02-14 01:10:26 -0500'
+categories:
+- tech
+tags: []
+comments: []
+---
+<h3>Innocent Beginnings</h3>
+<p>I have worked on a handful of web applications that send mail as a core feature. In all cases, no matter how much I protest, we end up with customers that insist on mail sent on their behalf to come from their domain.</p>
+<p>Here is the scenario.  (these domain names are made up but likely active so don't go there)</p>
+<ul>
+<li>My application runs on wonderfulapp.com</li>
+<li>For Acme, one of my customers I run a branded version at acme.wonderfulapp.com</li>
+<li>Acme's site is at acme.com</li>
+</ul>
+<p>Now Acme has several people using acme.wonderfulapp.com and because it has the Acme brand they tend to feel that it is the Acme site.  Lets say acme.wonderfulapp.com has a checkout process where anyone can buy things and they are sent an email receipt.</p>
+<h3>The customer is always right?</h3>
+<p>Now in version 1.0 of wonderfulapp.com the email would probably come from no-reply@wonderfulapp.com, with a reply-to line with an email address of someone at acme.com in case anyone replied to the receipt email.  This works fine but the folks at Acme think the email should come from an acme.com email address.  So we release V1.1 where we send the email receipts from receipts@acme.com to avoid any wonderfulapp.com branding confusion.</p>
+<p><strong>This is when all hell breaks loose.</strong></p>
+<p>The email that claims to be from receipts@acme.com is being sent from our wonderfulapp.com server.   We spent a lot of time ensuring mail sent from this server would not be marked as spam when coming from our @wonderfulapp.com email addresses.  Some of the things we did to prevent items from being marked as spam were</p>
+<ol>
+<li>Ensure a reverse DNS lookup on the IP address for wonderfulapp.com returns wonderfulapp.com.   When a server gets mail from an IP address it does a quick check to see if that IP address is related to the domain in the email From line.</li>
+<li>Setup an SPF record for wonderfulapp.com.   An SPF record specifies which IP addresses are allowed to send mail for a specific domain.</li>
+<li>Make sure wonderfulapp.com's email server is secure and not accessible to hackers.  Keeps us off blacklists</li>
+</ol>
+<p>In version 1.0 everything was fine but now in 1.1 we are sending mail on behalf of receipts@acme.com.   When a mail server like google gets this receipt email they do some of these things</p>
+<ul>
+<li>Look at the IP address of the sender and see if it belongs to the domain in the From line.
+<ul>
+<li>Our IP address does not belong to acme.com.   So we fail this check</li>
+</ul>
+</li>
+<li>See if acme.com has a SPF record stating who is allowed to send mail from acme.com
+<ul>
+<li>Many orgs don't have a SPF record so we'll fail on this account.  (and if they did we would fail harder if we were not included)</li>
+</ul>
+</li>
+</ul>
+<p>At this point we have 2 strikes against us. our server might have a good reputation and the mail might go thru regardless.   Success will vary between different email services as they all have different spam algorithims</p>
+<p>There is also the possibility that our server's IP could start being blocked as a spammer because we are now sending emails that are being marked spam (the acme.com emails).  This in turn could cause our  emails from wonderfulapp.com to start being marked as spam.</p>
+<p>Sending mail as someone you are not is known as spoofing and us sending mail from receipts@acme.com is clearly spoofing but it is exactly what our customer wanted.</p>
+<p>If you give into this customer requirement you should agree to spend time with their IT departments to get things setup right.  This can be a huge effort as many small businesses will not know where to start setting up SPF records or how to add you to an existing one.</p>
+<p>Lets go with the easiest case.   acme.com has a SPF record that is working correctly.  At this point we'll just need their IT guy to add us to their record.   Folks that use google apps to send their mail do this all the time.</p>
+<pre>v=spf1  ip4:1.2.3.4 a mx include:_spf.google.com ~all</pre>
+<p>If this was Acme's SPF record it says.  I send mail from 1.2.3.4, the mail servers in my MX records, acme.com and any google server.</p>
+<p>Now we just need to tell Acme to add us</p>
+<pre>v=spf1  ip4:1.2.3.4 a mx include:_spf.google.com include:wonderfulapp.com ~all</pre>
+<p>Good luck finding the person who does this.    But if you can you should have them add you.</p>
+<p>If they don't have an SPF record then asking them to add one is not a good route to go.   If they mess it up they could break their mail delivery.    Skip the SPF..  Move on.</p>
+<h3>What about reply-to??</h3>
+<p>A compromise I have tried in the past is to tell them.  We will use @wonderfulapp.com in the From: line and you can have receipts@acme.com in Reply-To:.   This way if people reply to the email it is sent to Acme.</p>
+<p>The limitation with this approach is when sending to a bad email.   Say our app sent daily messages to all their customers.  If a customer stopped using that email address,their email server will often times reply with an Undeliverable email message, but this goes to the person in the from line.  If that was noreply@wonderfulapp.com they aren't going to see it.</p>
+<p>That said, if the from line was receipts@acme.com and the receiving email server doesn't trust that we are a valid sender for acme.com the bounce email will not be sent anyway.</p>
+<h3>Forwarders?</h3>
+<p>If it is easy for your IT department to setup forwarders for all your customers this may be the way to go.   (assuming you're not in the 1000s of customer).    Instead of using receipts@acme.com in the from line set up acme@wonderfulapp.com to forward to receipts@acme.com.   Now you are no longer spoofing any users and you are helping to ensure that mail from your server will not be marked as spam.</p>
+<h3>DKIM?</h3>
+<p>If I could finally get wonderfulapp.com to only send email from wonderfulapp.com it would be wise to setup DKIM to help give my server more credibility as a sender of @wonderfulapp.com emails.</p>
+<p>That said I have always lost the product argument so the spoofing continues and delivery can be questionable.  :-\</p>
+<h3>Connecting to customer mail servers</h3>
+<p>There are many apps that let you enter your email username and password and they will send mail as you.   I never want to be in the business of knowing or managing a customer's email credentials.   Besides the risk of you being hacked these things often expire.   This is a maintenance and security nightmare.</p>
+<h3>More?</h3>
+<p>This post is mainly about me getting my thoughts on this subject written down..  I often think of new ideas as I write and I welcome comments and suggestions.     I'm also going to send this to my product folks.</p>
+<h3>On-Behalf-Of</h3>
+<p>The On-Behalf-Of header seems to be getting more traction now.   More and more email clients are using it.  It allows you to keep your From header honest while letting receivers who the email is being sent on behalf of.</p>
+<p>Companies like HubSpot use On-Behalf-Of and because they are all about metrics they capture bounces via the Return-Path header.    I think Return-Path is generated on the receiving server from the "Mail From:" header.   I suspect this header has the same domain restrictions via DMARC....</p>
+<p>&nbsp;</p>
+<p>still working on this</p>
+<p>&nbsp;</p>
+<h3> Links</h3>
+<ul>
+<li>Most of my thoughts on ensuring delivery (when sending mail from your own domain are confirmed here)
+<ul>
+<li><a href="http://www.codinghorror.com/blog/2010/04/so-youd-like-to-send-some-email-through-code.html">http://www.codinghorror.com/blog/2010/04/so-youd-like-to-send-some-email-through-code.html</a></li>
+</ul>
+</li>
+<li>HubSpot uses On-Behalf-Of.
+<ul>
+<li><a href="http://help.hubspot.com/articles/How_To_Doc/Why-do-my-emails-appear-as-sent-on-behalf-of-me">http://help.hubspot.com/articles/How_To_Doc/Why-do-my-emails-appear-as-sent-on-behalf-of-me</a></li>
+</ul>
+</li>
+<li>http://www.dmarc.org/</li>
+<li>Interesting.. http://sendgrid.com/docs/User_Guide/warming_up.html</li>
+<li></li>
+</ul>
+<p>&nbsp;</p>

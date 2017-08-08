@@ -1,0 +1,41 @@
+---
+layout: post
+status: publish
+published: true
+title: Running a Rails app behind a Proxy/F5
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 454
+wordpress_url: http://blog.tonycode.com/?p=454
+date: '2012-07-24 17:51:06 -0400'
+date_gmt: '2012-07-24 22:51:06 -0400'
+categories:
+- Uncategorized
+tags: []
+comments:
+- id: 207785
+  author: Proxy List
+  author_email: EmTiggs79@gmail.com
+  author_url: http://proxieseveryday.blogspot.com
+  date: '2013-07-24 13:22:30 -0400'
+  date_gmt: '2013-07-24 18:22:30 -0400'
+  content: I appreciate, cause I found just what I was having a look for. You have
+    ended my four day lengthy hunt! God Bless you man. Have a nice day. Bye
+---
+<p>Recently we moved our Rails 3 application into a new datacenter and as part of that move it was placed behind a F5, a proxy and then another F5.   Love that security.</p>
+<p>As a result the our certs were moved to the outer F5 and everything inside the datacenter ran on port 80.  This actually required a few configuration changes, some of which required me to dig through the rails code to find.</p>
+<p>First off.  We do some IP whitelisting in parts of our application so we needed X-Forwarded-For (XFF) set in the F5 and proxy.   This was not on by default.  Now when we got the XFF header there is a string of IP addresses representing the machines that have forwarded it along with the client IP address we needed.   Turns out request.remote_ip was returning the proxy or F5 IP instead of the client IP.   </p>
+<p>To fix this I needed to mark our proxy/F5 IP addresses as trusted.</p>
+<p>config.action_dispatch.trusted_proxies='^12.34'</p>
+<p>ex: if our datacenter machines were all on 12.34.x.x</p>
+<p>See actionpack-3.2.6/lib/action_dispatch/middleware/remote_ip.rb</p>
+<p>Next, I discovered that my application links were all http instead of https because the server was running on port 80 now.   After digging around the rails code I found the HTTP header I needed the F5 to send that would tell rails to act like it was running on 443.</p>
+<p>X-Forwarded-SSL on</p>
+<p>Not true, not 1. It must be on.  See rack-1.4.1/lib/rack/request.rb</p>
+<p>That's all.  Hope I save someone some time.  :-)</p>

@@ -1,0 +1,90 @@
+---
+layout: page
+status: publish
+published: true
+title: Photo Notes
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 326
+wordpress_url: http://blog.tonycode.com/?page_id=326
+date: '2011-12-20 21:40:14 -0500'
+date_gmt: '2011-12-21 02:40:14 -0500'
+categories: []
+tags: []
+comments: []
+---
+<p>I have 1000s of pictures that I have been organizing, renaming and changing the dates (exif) on.</p>
+<p>Seems each time I do this i forget where I put the pictures and what program I used to rename or edit.</p>
+<p>&nbsp;</p>
+<h3>jhead to the rescue</h3>
+<ul>
+<li>If the exif data is has the correct date but the modified time on the file is wrong use <strong>jhead -ft *.jpg</strong> to change the time on the file.</li>
+<li>to make filenames have the date from exif use <strong>jhead -n%Y%m%d-%H%M%S *.jpg</strong></li>
+<li>Adjust time with jhead -ta. Example. If you took a picture in 2002 but your camera was set to 2003 you can move it back 2 year with. <strong>jhead -ta-8760 -ft test.jpg </strong>
+<ul>
+<li>Note -ft is so the modified time will move back also</li>
+<li>8760 is the number of hours in a year</li>
+<li>if going over a leap year use 24 more. For example. I moved files with 2007 dates to 2008 (taken after February)
+<ul>
+<li>jhead -ta+8784 -ft *JPG</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>My approach</p>
+<ul>
+<li>leave file names alone and set the file date to the exif setting
+<ul>
+<li><strong>jhead -ft *.jpg</strong></li>
+</ul>
+</li>
+<li>See if any images are out of order when you <strong>ls -ltr</strong>them
+<ul>
+<li>Adjust dates as necessary with jhead -ta option</li>
+</ul>
+</li>
+<li>Once your convinced all the exif data is correct rename all files by date.
+<ul>
+<li><strong>jhead -n%Y%m%d-%H%M%S *.jpg</strong></li>
+</ul>
+</li>
+</ul>
+<h3>What about my movie files?</h3>
+<p>jhead won't help you here but you can use touch (unix/linux) to correct the dates on these files. Ex. I know these 2 AVIs are an hour ahead</p>
+<ul>
+<li>ls -l --time-style=full-iso *avi
+<ul>
+<li>2007-11-04 14:06:44.000000000 -0500 MVI_0396.avi</li>
+<li>2007-11-04 15:03:13.000000000 -0500 MVI_0426.avi</li>
+</ul>
+</li>
+</ul>
+<p>Lets move them back an hour. manually typing in the date</p>
+<ul>
+<li>touch -t 200711041306.44 MVI_0396.avi</li>
+<li>touch -t 200711041403.13 MVI_0426.avi</li>
+</ul>
+<ul>
+<li>ls -l --time-style=full-iso *avi
+<ul>
+<li>2007-11-04 13:06:44.000000000 -0500 MVI_0396.avi</li>
+<li>2007-11-04 14:03:13.000000000 -0500 MVI_0426.avi</li>
+</ul>
+</li>
+</ul>
+<p>yay. the dates are now correct<br />
+Todo..</p>
+<ul>
+<li>2001 folder -- 126 pics.</li>
+<li>2002 folder -- 424 pics.</li>
+<li>2003 folder -- 516 pics</li>
+<li>2004 folder. -- 910 pics</li>
+<li>2005 folder -- in progress - 1652 pics</li>
+</ul>

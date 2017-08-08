@@ -1,0 +1,127 @@
+---
+layout: post
+status: publish
+published: true
+title: Getting Rails/Nginx installed on Ubuntu 10.10
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 240
+wordpress_url: http://www.tonycode.com/blog/?p=240
+date: '2011-04-10 19:15:31 -0400'
+date_gmt: '2011-04-11 00:15:31 -0400'
+categories:
+- Uncategorized
+tags: []
+comments:
+- id: 100500
+  author: Justus Rambaldi
+  author_email: justusrambaldi@gmail.com
+  author_url: http://polinesian.net
+  date: '2011-04-20 16:13:10 -0400'
+  date_gmt: '2011-04-20 21:13:10 -0400'
+  content: "Hi Tony,\r\n\r\nMy Suggestion if is possible, publish an article about
+    NGINX PASSENGER(stand alone) and Thin, a kind of turbo configuration to process
+    the Frontend and the Backend isolated, I don't know between NGinx and Passenger
+    how is appropriate to process the frontend requests, I see Passenger used for
+    Backend and NGINX, the common is using Apache for Frontend and dinamic contend
+    using FastCGI module, but is conventional, I think Lighttpd better than apache
+    to server when speed is essential.\r\nI see articles using Varnish Cache/Memmcached
+    but is all applied for PHP not for Ruby on Rails.\r\nStudy this challenge, I believe
+    in my Intuition the results will be very impressive, all these solution are Turbo
+    Charged, compared with the poor Apache Server."
+---
+<p>I did a fresh install of Ubuntu today and figured I would share the steps and packages necessary to get Ruby on Rails running.    I always miss a package or 2 and need to go back.   Here is what worked for me today.</p>
+<p>Rails3 / Ubuntu 10.10 / MySql / Nginx / Ruby 1.9.2</p>
+<h2 id="internal-source-marker_0.9749695605972857">Core packages</h2>
+<pre>  
+sudo apt-get install curl # RVM needs it and it is good to have
+sudo apt-get install libcurl3-dev  # needed by several gems and nginx i think
+sudo apt-get install git # RVM needs it and it is good to have
+# Packages needed by rails and some popular Gems (also ssl for nginx)
+sudo  apt-get install build-essential bison openssl libreadline6  libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev  libsqlite3-0 libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf  libc6-dev ncurses-dev
+# MySql
+sudo apt-get install libmysqlclient-dev  sudo apt-get install mysql-server
+# needed by nginx
+sudo apt-get install libpcre3-dev  #nginx</pre>
+<h2>Install RVM</h2>
+<p>bash &lt; &lt;(curl -s https://rvm.beginrescueend.com/install/rvm)<br />
+#fix .bashrc then<br />
+rvm install 1.9.2  # or whatever ruby version you like<br />
+rvm --default use 1.9.2<br />
+gem install rails</p>
+<h2>Install Passenger/Nginx with SSL</h2>
+<p>Grab Nginx tarball</p>
+<pre>cd /tmp
+wget http://sysoev.ru/nginx/nginx-0.8.54.tar.gz
+tar -zxvf nginx-0.8.54.tar.gz
+
+# install the gem
+gem install passenger
+
+# build Nginx
+rvmsudo passenger-install-nginx-module</pre>
+<ul>
+<li>Watch Phusion Passenger do its thing and when it asks you “Automatically download and install Nginx?”, answer 2</li>
+<li>Specify the directory where you unzipped the nginx source code (Please specify the directory: /tmp/nginx-0.8.54))</li>
+<li>Specify the directory where you want to install nginx to (/usr/local/nginx in my case)</li>
+</ul>
+<p>You'll need a init script for nginx.  Get it here and follow directions</p>
+<p><a href="http://wiki.nginx.org/Nginx-init-ubuntu">http://wiki.nginx.org/Nginx-init-ubuntu</a></p>
+<p>To start Nginx use</p>
+<pre>sudo /etc/init.d/nginx start</pre>
+<p>Now at this point your nginx.conf needs some changes.  You need to point to your Rails apps and setup passenger.</p>
+<p>Here is my http section for /usr/local/nginx/conf/nginx.conf .. this is a dev setup.  don't read too much into it.</p>
+<p>&nbsp;</p>
+<pre>http {
+ passenger_root /home/tony/.rvm/gems/ruby-1.9.2-p180/gems/passenger-3.0.6;
+ passenger_ruby /home/tony/.rvm/wrappers/ruby-1.9.2-p180/ruby;
+ passenger_user_switching on;
+include       mime.types;
+ default_type  application/octet-stream;
+
+ log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+ '$status $body_bytes_sent "$http_referer" '
+ '"$http_user_agent" "$http_x_forwarded_for" "$http_host"';
+
+ access_log  /tmp/nginx.access.log  main;
+ sendfile        on;
+ keepalive_timeout  65;
+
+ server {
+ listen       *:80;
+ server_name  localhost;
+ rails_env development;
+ root   /&lt;path to my rails app&gt;/public;</pre>
+<pre>  if ($request_method !~ ^(GET|HEAD|POST|PUT|DELETE)$ ) {
+   return 444;  # block requests that Rails doesn't handle
+  }
+passenger_enabled on;
+}
+# HTTPS server
+server {
+  listen       443;
+  server_name  localhost;
+  rails_env development;
+  root   /&lt;path to my rails app&gt;/public;
+  if ($request_method !~ ^(GET|HEAD|POST|PUT|DELETE)$ ) {
+    return 444;  # block requests that Rails doesn't handle
+  }
+  ssl                  on;
+  ssl_certificate      local.crt;
+  ssl_certificate_key  local.key;
+  ssl_session_timeout  5m;
+  ssl_protocols  SSLv2 SSLv3 TLSv1;
+  ssl_ciphers  ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
+  ssl_prefer_server_ciphers   on;
+  passenger_enabled on;
+  }
+}</pre>
+<p>restart your Nginx if it is already running</p>
+<p>sudo /etc/init.d/nginx restart</p>
+<p>That's all..  hopefully this helps someone.  :-)   My nginx.conf is much longer so hopefully I didn't cut out anything too important.</p>

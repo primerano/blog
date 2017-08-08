@@ -1,0 +1,38 @@
+---
+layout: post
+status: publish
+published: true
+title: Building Bebo Apps.   Part 2 (Auto-Updating the Profile Page)
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 76
+wordpress_url: http://www.tonycode.com/blog/archives/76
+date: '2008-04-16 10:13:27 -0400'
+date_gmt: '2008-04-16 15:13:27 -0400'
+categories:
+- tech
+- bebo
+tags:
+- code
+comments: []
+---
+<p>Handles are the key to having applications update on the profile page without a user taking action. Some notes on how to do this on Facebook are <a href="http://joel.neubeck.net/2007/10/facebook-fbml-ref/" target="_blank">here</a>. Since Bebo has implemented most of the Facebook API this should be easy but I think some things (like Infinite session keys) are still missing. Hoping someone will leave me pointer proving me wrong on this. ;-)</p>
+<p>By placing a handle on a user's page you can (in theory) push updates to a user's profile page without them interacting with the application. For example. If you had a "Washington Capitals Fans" application that pushed news to every user's profile that had the application, all these pages would have the same handle. Having a single handle means that a single update of the handle content would update all profiles using the application.</p>
+<p>In other cases you might want a unique handle per profile. For example, if your application injected an RSS feed of the user's choice onto their profile.<br />
+Here is a simple example of setting a handle on a user's page. I use the user's UID as the handle in this case.</p>
+<p><a title="Bebo Examples" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/bebo-examples" target="_blank"><span class="toctext">Set a handle on a user's profile</span></a></p>
+<p>I then write an update.php file that injects the date on the user's profile</p>
+<p><a title="Bebo Examples" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/bebo-examples" target="_blank"><span class="toctext">Update a handle on a user's profile</span></a></p>
+<p>That's all fine and good but the update wasn't automatic. The user had to hit the update.php file. In a real application we would have a database of all the users and we could periodically update the handles. Assuming there is an infinite session concept in the Bebo API. Since I could not figure out how to implement an infinite session here is my hack.</p>
+<p>I place a hidden image on the user's page that calls the update function.<br />
+Now when a user views their profile, the hidden image calls refresh.php and the handle content is updated. Unfortunately, the update happens after the page is rendered so you'll need to reload to see the change.</p>
+<p>The code...</p>
+<p><a title="Bebo Examples" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/bebo-examples" target="_blank"><span class="toctext">Set a handle on a user's profile and use hidden image for update</span></a></p>
+<p>Unfortunately, the update happens after the page is rendered so you'll need to reload the page to see the change. It should also be noted that anytime someone views your page they will call the update.php. If they also have the application installed your handle will be updated.</p>
+<p>Assuming infinite sessions keys are unavailable I would leverage app users to update their peers. In your database of users keep track of the last time they were updated. Anytime the update.php function is called do an update on all handles that haven't been updated in a specific period of time. As the user base grows this should allow for a more even distribution of updates. This might even be better than the cron jobs that infinite session key users use in their cron jobs.</p>

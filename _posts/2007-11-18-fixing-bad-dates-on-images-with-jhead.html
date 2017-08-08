@@ -1,0 +1,40 @@
+---
+layout: post
+status: publish
+published: true
+title: Fixing bad dates on images with jhead
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 62
+wordpress_url: http://www.tonycode.com/blog/archives/62
+date: '2007-11-18 15:21:28 -0500'
+date_gmt: '2007-11-18 20:21:28 -0500'
+categories:
+- Life
+- tech
+tags:
+- code
+comments: []
+---
+<p>I occasionally find myself setting the wrong date on my camera and ending up with 100s of pictures that need the dates edited on them. In the past I made these changes with programs that made me edit the dates one picture at a time. I want to set the year ahead or the hour back on 100s of pictures all at once.</p>
+<p>JHead to the rescue! Just today I discovered that I needed to set the date back on 100 pictures that I had taken since daylight savings time. With jhead I just stuck the pictures with bad dates in a folder and ran</p>
+<p><strong>jhead -ta-1 *jpg</strong></p>
+<p>then I changed the actual timestamps on the files to match the EXIF data with</p>
+<p><strong>jhead -ft *.jpg</strong></p>
+<p>Now that my pictures had the correct hour I was hoping to see my pictures and my daughters in order in picasa. For example. The picture of Maia taking a picture of a boat should be followed by the picture of the boat.</p>
+<p>It wasn't! Turns out her camera was 5 minutes ahead of mine. With jhead this is not an issue.</p>
+<p><strong>jhead -ta-0:05 HP*jpg </strong></p>
+<p><strong>jhead -ft HP*jpg</strong></p>
+<p>This moved the time on all her HP pictures back 5 minutes.</p>
+<p>Now the pictures are in order and I'm happy. ya. I'm just a little anal.</p>
+<p>Here is my picture</p>
+<p><img title="me taking a picture of maia taking a picture of a boat" src="http://tonycode.com/images/mine.jpg" alt="me taking a picture of maia taking a picture of a boat" /></p>
+<p>Here is what Maia got</p>
+<p><img title="Maia's picture" src="http://tonycode.com/images/maia.jpg" alt="Maia's picture" /></p>
+<p>More jhead notes are on my <a title="Photo Notes" href="http://blog.tonycode.com/tech-stuff/photo-notes" target="_blank">wiki</a></p>

@@ -1,0 +1,83 @@
+---
+layout: page
+status: publish
+published: true
+title: Ruby on Rails v2 Notes
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 297
+wordpress_url: http://blog.tonycode.com/?page_id=297
+date: '2011-12-20 21:11:53 -0500'
+date_gmt: '2011-12-21 02:11:53 -0500'
+categories: []
+tags: []
+comments: []
+---
+<p>Piles of notes at <a title="Rails v1 Notes" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/rails-v1-notes">Ruby on Rails Notes</a> but some of the stuff there is deprecated. Adding my notes/reminders for 2.0 here.</p>
+<h3>Application Creation</h3>
+<ul>
+<li>creating app is the same
+<ul>
+<li>rails yourapp
+<ul>
+<li>using mysql -&gt; <strong>rails yourapp --database=mysql yourapp</strong></li>
+</ul>
+</li>
+<li>create db
+<ul>
+<li>via rails
+<ul>
+<li>rake db:create RAILS_ENV='development'</li>
+</ul>
+</li>
+<li>with mysqladmin
+<ul>
+<li>mysqladmin -u root create yourapp_development</li>
+</ul>
+</li>
+<li>Sanity check with <strong>rake db:migrate</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Scaffolding</h3>
+<ul>
+<li>Dynamic Scaffolding is gone. No more magic.</li>
+<li>Creating scaffolding for a product model
+<ul>
+<li>ruby script/generate scaffold site title:string description:text url:string</li>
+</ul>
+</li>
+<li>Update database
+<ul>
+<li>rake db:migrate</li>
+</ul>
+</li>
+<li>like rails 1.0 you can revert with
+<ul>
+<li>rake db:migrate VERSION=0</li>
+</ul>
+</li>
+<li>to destroy scaffolding run
+<ul>
+<li>ruby script/destroy scaffold site</li>
+</ul>
+</li>
+</ul>
+<h3>Migrations</h3>
+<ul>
+<li>generate migration creates a migration. Use add in name for updates and create for new tables
+<ul>
+<li>ruby script/generate migration add_time_to_site time:datetime</li>
+<li>rake db:migrate</li>
+</ul>
+</li>
+<li>At this point your view is out of date. You can hand edit it or you can rerun the generate/scaffold command</li>
+</ul>

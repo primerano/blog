@@ -1,0 +1,38 @@
+---
+layout: post
+status: publish
+published: true
+title: My sitemap notes are in the Advanced Rails Recipes Book
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 72
+wordpress_url: http://www.tonycode.com/blog/archives/72
+date: '2008-03-08 18:05:01 -0500'
+date_gmt: '2008-03-08 23:05:01 -0500'
+categories:
+- tech
+- rails
+- sitemap
+tags:
+- code
+comments: []
+---
+<p>After I <a target="_blank" href="http://www.tonycode.com/blog/archives/68">blogged about building a sitemap</a> for Rails I contacted <a target="_blank" href="http://clarkware.com/about.html">Mike Clark</a> and asked him if he thought it would make a good Recipe for his upcoming book, <a target="_blank" href="http://www.pragprog.com/titles/fr_arr">Advanced Rails Recipes</a>.  He thought it was a good fit and it is currently in the Beta version of the book.</p>
+<p>I wrote up my notes in the Recipe format, then Mike basically rewrote it for Rails 2.0 and added some additional content.  Thanks Mike!  I almost feel bad being cited as the author since after editing it is drastically different from the original.  :-)</p>
+<p>The core concepts are still there and some thoughts were dropped since Recipes should be short.   So, Here are some elaborations..</p>
+<p><strong>The Ping Protocol</strong></p>
+<p>There is a warning in the book about excessively pinging to Google to have them read your sitemap.  I would recommend letting search engines crawl your sitemaps at their own speed.  The ping example in the book was a nice overview of when to use an Observer and also provided complete coverage on how to submit sitemaps.  Please use ping sparingly, if at all.  :-)</p>
+<p><strong>Sitemaps with over 50,000 entries</strong></p>
+<p>I work on sites where we use siteindex files because we submit well over 50,000 URLs to the search engines. I didn't provide an example on how to build these in Rails because I'm not sure they provide any value to the typical site.</p>
+<p>My theory is that if you build a sitemap with the 50,000 pages that were most recently updated you will give the search engines all they need.  If a page isn't updated for a while and it falls off the list is that really a problem?   If the page was worth anything someone externally would be linking to it before it fell off the list.  Now if your site is creating millions of pages a day this may not be the case.</p>
+<p>If your pages are islands (no links to them) and you're afraid they won't be found unless they are all in the sitemap, I would suggest building the sitemap via a rake task that is kicked off via a cron job.  This will also give you an opportunity to gzip the files.   I'll try to writeup some example code for the this when I find some free time.</p>
+<p><strong>Do I really need a sitemap?</strong></p>
+<p>If your site has navigation to all its pages, then a sitemap will probably not benefit you.   I suggest checking what pages the search engines have in their index and if key content is missing then pursue a sitemap.  Even if they are finding all your pages a sitemap certainly couldn't hurt.</p>
+<p>Just in case you didn't know how to find the pages Google knows about on your site you can simply type site:youdomain.com in the Google or Yahoo search box.</p>
+<p>Example results for my site are <a target="_blank" href="http://www.google.com/search?q=site%3Atonycode.com">here</a></p>

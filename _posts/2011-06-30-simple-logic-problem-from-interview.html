@@ -1,0 +1,77 @@
+---
+layout: post
+status: publish
+published: true
+title: Simple logic problems from interviews
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 252
+wordpress_url: http://www.tonycode.com/blog/?p=252
+date: '2011-06-30 13:29:32 -0400'
+date_gmt: '2011-06-30 18:29:32 -0400'
+categories:
+- Uncategorized
+tags: []
+comments:
+- id: 109529
+  author: Richard Bullington-McGuire
+  author_email: rbulling@obscure.org
+  author_url: ''
+  date: '2011-07-24 22:38:02 -0400'
+  date_gmt: '2011-07-25 03:38:02 -0400'
+  content: It can't be a coincidence that I was asked these three exact questions
+    in the same order even at an interview at a DC area software product company recently.
+- id: 109578
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2011-07-25 11:45:22 -0400'
+  date_gmt: '2011-07-25 16:45:22 -0400'
+  content: I suspect it was the same company :-)  They have a nice view but no metro
+    access, I found it an odd spot for a startup.
+---
+<p>I love logic/algorithm problems but during an interview I can sometime just blank out on these questions.   I don't feel like taking a lot of time but at the same time some of the problems are quite complex if not approached in the right way.</p>
+<p><strong>Problem 1:</strong></p>
+<p>You have an array that contains 0s and 1s.   Order the array.</p>
+<p>Now if memory and performance weren't a factor this is as simple as doing a ones_and_zeros.sort in ruby (where ones_and_zeros is the array).</p>
+<p>You could also build an array of 0s and 1s and then merge them but if the array huge and taking up too much memory this is less than ideal.   You could also add up all the 1s and build a new array but then you are also building a second array and iterating twice.</p>
+<p>So the correct answer is to do this inline.</p>
+<p>My solution is to loop through the array, replacing any 0 with a 1 and putting 0s on the front of the array.  There is the main loop index and then the zero index that points to the location of the last 0.</p>
+<p>&nbsp;</p>
+<pre>def sort_it!(ones_and_zeros)
+ zero_index = -1
+ for i in 0 .. ones_and_zeros.size
+   if ones_and_zeros[i] == 0
+     zero_index +=1
+     unless zero_index == i
+       ones_and_zeros[zero_index]=0
+       ones_and_zeros[i] = 1
+     end
+   end
+ end
+ return ones_and_zeros
+end</pre>
+<p>This works fine but I got stuck and came back to this problem later.  :-\   I should probably google this and see if there is a better way.</p>
+<p><strong>Problem 2:</strong></p>
+<p>Next problem was..  you have 5 bottles of pills,  1 has bad pills.  The bad bills weigh 9oz and good pills are 10oz.  You can use the scale once.  You can weigh pills, bottles or any combination but you can only use the scale once.</p>
+<p>Now you could weigh pills 3 pills from different bottles and determine narrow down to 2 or 3 which bottle has the bad pills but we need to know which one has the bad pills.</p>
+<p>After what seemed like an eternity I figured it out.   put 1 pill from bottle #1, 2 from #2, 3 from #3, etc on the scale.   if all the batches are were good these 15 pills would weigh 150oz.  but there are bad pills.  If they were in bottle #1 it would weigh 149oz, in #2 148oz. etc.   Isn't this fun!    It is fun unless you are under a the pressure of a interview...  that said I guess this tests how people react under pressure as well as their logic skills.</p>
+<p><strong>Final problem</strong></p>
+<p>you need to determine what the highest floor on a 100 story building that you can drop a marble from before it will shatter on the ground.   You have 2 marbles to work with and you need to minimize the number of tries.   You could go floor 1, 2,3,4, etc but then worse case you have made 100 tries.</p>
+<p>I immediately started thinking about dividing the problem like a binary tree.  Try floor 50, then 75 if no breakage, then 62 if it broke but you only have 2 marbles so the worse case is 50 tries.  start at 50.  breaks,  go back to 1 and progress to 49.</p>
+<p>Now what if I moved up 5 floors at a time.  Worse case is 99 with 24 tries.   5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,96,97,98,99</p>
+<p>Ok, how about 10s?  10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 91, 92, 93,94,95,96,97,98,99</p>
+<p>19 tries.  better</p>
+<p>There must be a formula here..  assuming a fixed increment we have ceiling(floors/increment) + increment -1</p>
+<p>This seems to work ceiling(100/10) + 9 = 19 and ceiling(100/5) + 4 = 24 check out.</p>
+<p>Ok,  graph this thing and find the lowest point..  turns out with this technique 19 tries is the best by using 10 as the fixed increment.</p>
+<p>But the real answer is 14 using an increment that changes.   I'm out of time for today but I'll probably dig into that one while i sleep.  :-)</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

@@ -1,0 +1,299 @@
+---
+layout: post
+status: publish
+published: true
+title: Why I chose The Rackspace Cloud over AWS
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 122
+wordpress_url: http://www.tonycode.com/blog/?p=122
+date: '2009-09-03 08:05:40 -0400'
+date_gmt: '2009-09-03 13:05:40 -0400'
+categories:
+- tech
+tags:
+- rackspace
+- cloud
+comments:
+- id: 59168
+  author: Rob La Gesse
+  author_email: rob.lagesse@rackspace.com
+  author_url: http://rackspace.com
+  date: '2009-09-03 08:28:09 -0400'
+  date_gmt: '2009-09-03 13:28:09 -0400'
+  content: "Tony, thanks for the post.  I'm pleased that you find Cloud Servers easy
+    to use (we certainly planned it that way!).  I think you'll be pretty pleased
+    with some of the features we'll be rolling out over the next several months.\r\n\r\nLet
+    me know if I can ever help with anything.\r\n\r\nRob La Gesse\r\nDirector of Customer
+    Development\r\nRackspace\r\n210-845-4440"
+- id: 59169
+  author: Alan
+  author_email: alankeister@gmail.com
+  author_url: ''
+  date: '2009-09-03 09:18:57 -0400'
+  date_gmt: '2009-09-03 14:18:57 -0400'
+  content: How did you set up the backup from MySQL to Amazon S3?
+- id: 59170
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2009-09-03 09:29:03 -0400'
+  date_gmt: '2009-09-03 14:29:03 -0400'
+  content: "I am using a modified version of Paul Dowman's MySQL S3 backup scripts.\r\n\r\nhttp://pauldowman.com/2009/02/08/mysql-s3-backup/\r\n\r\nI
+    updated it to keep 7 days of backups instead of just one, because if someone wipes
+    out the database and the cron runs you'll have a backup of nothing.\r\n\r\nHaving
+    this backup is very useful.  Since my product isn't live yet I've been a little
+    lax in my testing before deployment and I accidentally deleted a bunch of data
+    one day.   With these scripts I was up and running again in a few minutes.  I
+    also use the scripts to pull my production data into my local box for testing.
+    \  Its pretty sweet."
+- id: 59175
+  author: Bill
+  author_email: bkocik@gmail.com
+  author_url: http://bkocik.net
+  date: '2009-09-03 10:24:32 -0400'
+  date_gmt: '2009-09-03 15:24:32 -0400'
+  content: "Good write-up, Tony. I would add the following advantages (I switched
+    from EC2 to RSC several months ago and haven't looked back):\r\n\r\n1) RSC's storage
+    is directly attached and persistent. This means fast I/O, and that you don't (necessarily)
+    lose your data in the event of a crash or reboot. To get persistence with EC2
+    you have to pay for one or more EBS volumes, and they're still not directly attached.\r\n\r\n2)
+    Where Amazon gives you ceilings, RSC gives you floors. EC2 says \"This is how
+    much CPU you get,\" while RSC says \"You'll get at least this much CPU, and you
+    can burst if there's more available.\"\r\n\r\n3) A much better scaling model.
+    If I need to scale on EC2, I have to launch additional instances (which you can
+    do with stored AMI's). At RSC, I can point to a running instance and click a button
+    to say \"Make this server bigger\" (or smaller if you need to scale down). A few
+    minutes later, it's all done. I have the option of adding additional instances,
+    too, of course, but it's not my only relief.\r\n\r\n4) Support! Amazon has pay-per-incident
+    support. I've never used it, and can't speak to its quality. If you're using Cloud
+    Sites, Rackspace sysadmins manage your instance(s) for you. If you're using Cloud
+    Servers, you manage your own instance(s) but still get their support* which really
+    is as good as they say it is.\r\n\r\n5) Hybrid deployments. I'm not using this,
+    but for larger deployments you can mix-and-match VPS instances and dedicated hardware,
+    and they'll work pretty seamlessly together. Amazon doesn't offer this at all.\r\n\r\n6)
+    DNS and reverse DNS. DNS services are common (though EC2 doesn't offer them),
+    but reverse DNS is unheard of. I love that if you look up my host's IP you get
+    back my hostname instead of some convoluted hostname set by my hosting provider.\r\n\r\nThere
+    are a few services Amazon offers that RSC doesn't yet, but I really haven't missed
+    any of them (your needs may differ). RSC gives me everything I need to run the
+    stuff I run, the price is unbeatable, and managing all of it is simple as can
+    be.\r\n\r\n\r\n*RSC currently offers free support for all Cloud Servers customers,
+    but in the future it will be available only to those who spend $100/month or more
+    - still a much better deal than EC2's support model, and it's still Rackspace
+    support, which is awesome."
+- id: 59176
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2009-09-03 10:33:39 -0400'
+  date_gmt: '2009-09-03 15:33:39 -0400'
+  content: "Great points Bill, I knew you would have something to add.  I've been
+    using the reverse DNS since I started, it was pretty important for some of the
+    things I am doing.\r\n\r\nOne issue with RSC floors..  They make performance/load
+    testing hard.   If I make some changes to my application and it goes from 50 requests
+    per second to 60 RPS I don't know if my code change helped or the server is just
+    under less load.   I wonder if there is a way to temporarily set your instance
+    to use the ceiling model."
+- id: 59177
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2009-09-03 10:56:23 -0400'
+  date_gmt: '2009-09-03 15:56:23 -0400'
+  content: "Glad to see AWS is posting a link to this on twitter.  I don't want a
+    one sided discussion.  :-)\r\n\r\nActually,  it appears they just have a bot retweeting
+    anything that mentions AWS.   "
+- id: 59228
+  author: Niki Cloudlover
+  author_email: nikiacosta@gmail.com
+  author_url: ''
+  date: '2009-09-04 13:12:58 -0400'
+  date_gmt: '2009-09-04 18:12:58 -0400'
+  content: "Check out the RS Cloud Servers versus AWS EC2 here:\r\n\r\nhttp://www.rackspacecloud.com/cloud_hosting_products/servers/compare\r\n\r\nThe
+    API here:\r\n\r\nhttp://www.rackspacecloud.com/cloud_hosting_products/servers/api\r\n\r\nAnd
+    Cloud Tools (new!) here:\r\nhttp://tools.rackspacecloud.com/"
+- id: 59287
+  author: Erik Carlin
+  author_email: erik.carlin@rackspace.com
+  author_url: http://www.rackspacecloud.com
+  date: '2009-09-05 13:42:15 -0400'
+  date_gmt: '2009-09-05 18:42:15 -0400'
+  content: "Tony,\r\n\r\nGood write up.  Thanks for your question on performance testing.
+    \ We have certainly thought about offering capped CPUs to provide consistent (albeit
+    inferior) performance.  As you point at, it would be good for determining the
+    relative impact of code changes as well as \"worst case\" performance.  It's good
+    to hear a customer talk about this being useful.  We hear you and I'll take it
+    back to the team!\r\n\r\nErik Carlin\r\nSenior Architect, Rackspace Cloud"
+- id: 59299
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2009-09-05 17:34:19 -0400'
+  date_gmt: '2009-09-05 22:34:19 -0400'
+  content: Erik, just don't make that the default behavior.  I just want a way to
+    temporarily cap the CPU so I can determine my "worst case".  Thanks for listening
+- id: 59358
+  author: Erik Carlin
+  author_email: erik.carlin@rackspace.com
+  author_url: http://www.rackspacecloud.com
+  date: '2009-09-06 17:43:35 -0400'
+  date_gmt: '2009-09-06 22:43:35 -0400'
+  content: "Tony,\r\n\r\nAbsolutely.  It would likely be a \"cap\" flag you could
+    turn on/off and default would be off.\r\n\r\nErik"
+- id: 59550
+  author: Derek Gathright
+  author_email: drgath@gmail.com
+  author_url: http://derekville.net
+  date: '2009-09-11 21:56:46 -0400'
+  date_gmt: '2009-09-12 02:56:46 -0400'
+  content: Exact same situation here.  Started with EC2 and used it for about a year,
+    loved it, but wanted something cheaper.  Then I looked at Slicehost, realized
+    I use little bandwidth and settled with Rackspace Cloud Servers for personal projects.  The
+    price for what you get is incredible.  Scaling is super easy.  You get a really
+    nice control panel.  I've gone from recommending EC2 for projects at work (with
+    little luck because of cost) to using RSC because cost isn't even an issue.  EC2
+    is such a nightmare when it comes to backing up &amp; cloning when you compare
+    it to Rackspace Cloud.  Excellent product.  Kudos Rackspace.
+- id: 60192
+  author: Tom Hubbard
+  author_email: tom@lilacridgeconsulting.com
+  author_url: http://lilacridgeconsulting.com
+  date: '2009-09-27 20:31:34 -0400'
+  date_gmt: '2009-09-28 01:31:34 -0400'
+  content: "EC2 is much cheaper, especially if you get a reserved instance.\r\n\r\nWith
+    a reserved instance you can get $0.05/hour.  Compare that to what a comparable
+    RackSpace instance costs: $0.12/hour .  Also EC2 bandwidth out is $0.17/GB and
+    RackSpace is $0.22/GB .  Those are significant differences that go directly to
+    the bottom line.\r\n\r\nTom Hubbard\r\n804-767-1744"
+- id: 60193
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2009-09-28 09:26:17 -0400'
+  date_gmt: '2009-09-28 14:26:17 -0400'
+  content: "Hey Tom, Thanks for EC2 information.   I agree EC2 is cheaper if you are
+    running the equivalent of small EC2 instances but for a majority of my servers
+    I am using 256 and 512MB instances with very little bandwidth.   Rackspace is
+    currently saving me a lot of money over AWS but I may move some servers to EC2
+    in the future if it saves me money. \r\n\r\nThe issue with the EC2 \"small instance\"
+    is that is it pretty large.  Maybe they need Mini and Micro instances.  :-)   I
+    also would be willing to pay a little more for Rackspace as their 1 click backup
+    is much easier than EC2 (last time I checked)."
+- id: 60261
+  author: Tom Hubbard
+  author_email: tom@lilacridgeconsulting.com
+  author_url: http://lilacridgeconsulting.com
+  date: '2009-09-30 06:47:44 -0400'
+  date_gmt: '2009-09-30 11:47:44 -0400'
+  content: "Great points, Tony.  But do you really need to be running several 256MB
+    servers, or is there some way that you could consolidate apps onto a single 2GB
+    host?\r\n\r\nI do agree that EC2 is a bit difficult to set up initially."
+- id: 60357
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2009-10-02 09:02:16 -0400'
+  date_gmt: '2009-10-02 14:02:16 -0400'
+  content: yes I could put several of my servers on a single 2GB host but I like to
+    decouple my system as much as possible.   If I had one host and it went down I'd
+    be in big trouble.  As it is if my DB host goes down several things no longer
+    work but there are a few services that I offer that will continue to operate normally
+    as they don't depend on the database.
+- id: 60374
+  author: wik
+  author_email: wik@osmonitoring.com
+  author_url: ''
+  date: '2009-10-02 18:43:58 -0400'
+  date_gmt: '2009-10-02 23:43:58 -0400'
+  content: "rackcloud servers looks exactly like VPS I am currently using from vpslink.com,
+    but cheapest due to flexible traffic rates only :)\r\n\r\nbtw, is it possible
+    to build custom OS images with rackspace?\r\nFrom running system or from the scratch?
+    Or maybe cloning existent instance when new needed? I have interest in such feature...\r\n\r\nThanks."
+- id: 60499
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2009-10-04 19:16:07 -0400'
+  date_gmt: '2009-10-05 00:16:07 -0400'
+  content: "Creating and cloning images is easier on Rackspace than on AWS but at
+    the moment they can not be shared between accounts but that is changing soon.
+    \ \r\n\r\nOnce you get a machine setup how you like it you click backup from the
+    web interface to create a snapshot image of the machine.  Then you can use that
+    image to restore that machine or use it to create a new instance."
+- id: 61345
+  author: Brad Schick
+  author_email: schickb@gmail.com
+  author_url: ''
+  date: '2009-11-04 01:38:30 -0500'
+  date_gmt: '2009-11-04 06:38:30 -0500'
+  content: "Another perspective on Amazon EC2 versus Rackspace CS:\r\n\r\nhttp://blog.schicks.net/2009/rackspace-vs-amazon/\r\n\r\nI
+    find that RSCâ\x80\x99s \"directly attached and persistent\" storage is actually
+    a mixed blessing as currently implemented."
+- id: 75148
+  author: David Schott
+  author_email: dschott68@gmail.com
+  author_url: http://dschott68.posterous.com/
+  date: '2010-04-22 22:20:52 -0400'
+  date_gmt: '2010-04-23 03:20:52 -0400'
+  content: Thanks Tony.  You helped me decide which hosting company to go with.
+- id: 84101
+  author: Brian Gupta
+  author_email: brian.gupta@brandorr.com
+  author_url: ''
+  date: '2010-09-09 10:25:57 -0400'
+  date_gmt: '2010-09-09 15:25:57 -0400'
+  content: "Hey guys you'll be happy to know that Amazon just announced \"micro instances\"
+    of BOTH 32 bit and 64 bit flavors. (Linux and Windows). They are a fraction of
+    the cost of their small instances, and if I am doing my math right are cheaper
+    than pretty much all the competition. This doesn't even factor in reserved instances
+    or spot pricing, both of which apply to microinstances (also known as t1.micro
+    instances).\r\n\r\nDo check out the following which explains how they finally
+    have an answer for folks who need bursting: http://www.thewhir.com/web-hosting-news/090910_New_Amazon_EC2_Micro_Instances_Offer_Option_for_Low_Throughput_Applications"
+- id: 84106
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2010-09-09 10:57:55 -0400'
+  date_gmt: '2010-09-09 15:57:55 -0400'
+  content: "at 1st glance it looks like a cheaper version of a 512MB Cloud Server
+    (2c vs 3c) but I wonder what the 'small amount of consistent CPU resources' comes
+    to.   Does a RSCS 512MB have a higher reserved amount of resources?\r\n\r\nAWS
+    also has cheaper bandwidth charges too.\r\n\r\nFor my uses I think RSC still wins.
+    \ I usually start a new project on a 256MB instance, then bump it to 512MB when
+    needed and then to 1MB or higher if needed.   With AWS I would need to start with
+    the micro and then jump to the much more expensive small.\r\n\r\nDoes AWS have
+    a way to bump your running instance size?   \r\n\r\nI really should try out AWS
+    again to compare features but as I currently have 8 servers in production with
+    sizes between 256MB and 1MB AWS would end up costing me more to run."
+- id: 105945
+  author: Akshay Arabolu
+  author_email: akshay@getcomparisons.com
+  author_url: http://getcomparisons.com
+  date: '2011-06-16 14:00:59 -0400'
+  date_gmt: '2011-06-16 19:00:59 -0400'
+  content: "Hi Tony,\r\n\r\nJust came across this comparison of yours between Rackspace
+    and AWS. I know its dated but its a great article. Wanted to know if you'd like
+    to update this post and feature it on getcomparisons.com? A project weâ\x80\x99ve
+    started to house all the best product comparisons on the web under one roof. You
+    can back-link to this original article of course. Check it out, and if you're
+    interested, I will send you an invite.\r\n\r\nCheers,\r\nAkshay Arabolu, Founder"
+---
+<p>Last October at BarCamp DC 2 I ran a session called  <a title="To Cloud or Not? AWS, EC2, S3" href="http://www.tonycode.com/blog/archives/80" target="_blank">“To Cloud or Not? AWS, EC2, S3 or build your own</a>“.  Unfortunately the barcamp wiki died and my notes are gone but at the time it seemed that everyone loved Amazon's services.   I tried using EC2 in April and while the ablity to select from several pre-configured AMIs was nice, building your own AMI should have been easier.  I wanted to configure my machine and then push a button to have my image created.   With Amazon you needed to install tools and go through several steps to create an image.</p>
+<p>Then I found Slicehost.  It was owned by Rackspace and had servers for as little as $20/month (for a 256MB instance).   A few weeks later I stumbled on Mosso, also owned by Rackspace and it had servers for about $11/month (plus bandwidth).   Since my applications were using very little bandwidth, I moved to Mosso which is now called <a href="http://www.rackspacecloud.com/" target="_blank">The Rackspace Cloud</a>.   With the Rackspace offerings you install your operating system image, <a href="http://cloudservers.mosso.com/index.php/List_of_Articles#CentOS" target="_blank">configure it</a> and then, from their control panel you can then back it up with 1 click.  You can also schedule backups.   This was so much easier than EC2.</p>
+<p>Then there is the pricing.  Amazon's small instance is a big vitrual machine and at $0.10/hour it runs around $70/month (i think it was 0.12/hour when I 1st started using it).    This is probably a good price if you need that much horsepower.    What could you possibly run from a 256MB instance anyway?  Here's what I am running.</p>
+<ul>
+<li>A full rails app using Apache/Passenger and MySql (I had to remove several unused modules from apache config and my database is small at the moment)</li>
+<li>Apache PHP -- I don't have a database here but I suspect there is room</li>
+</ul>
+<p>I suspect a 512MB instance a safe bet for most applications and I will lilely upgrade as my traffic and database size increases.   Depending on the situation, I may just spin up more instances of the same server as redunancy is a good thing.   Sure I could run everything on 1 AWS instance but if it dies I'm really SOL.</p>
+<p>If you ever need a bigger slice you can upgrade in the control panel with 1 click.  All your configurations and IP address are kept the same. I usually make a backup (1 click) before doing this just in case something bad happens.</p>
+<p>Rackspace is still making improvements to their APIs and Image Management so while they don't offer as many services as Amazon, they have offered all important features to make developer's lives easier, IMO.</p>
+<p>For the record, I actually backup my Rackspace Databases to Amazon's S3, I feel better knowing my backups are in a different datacenter.  :-)</p>
+<p><strong>If you sign up (and found this post helpful) please use my referral code when creating your account.  It is REF-TONYCODE</strong></p>

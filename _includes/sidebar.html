@@ -1,0 +1,91 @@
+
+
+<div id="welcome" class="row sidebar-section">
+  <div class="col-md-12 alert alert-info">
+    <h2>Welcome to Tony's Place!</h2><p>Thanks for dropping by! This blog contains my random thoughts (mostly technical).  I don't blog often because I don't want to add noise to the blogsphere.   If I can't find a solution to a problem online I try to post my solution here once I have figured it out. Once in a while I just add to the noise.  :-)</p>
+  </div>
+
+</div>
+
+
+<div id="recent-list" class="row sidebar-section">
+  <div class="col-md-12 alert alert-info">
+    <h2>Recent Posts</h2>
+
+<ul>
+      {% for post in site.posts limit: 5 %}
+      <li><a href="{{ post.url | prepend: site.baseurl }}"> {{ post.title }} </a></li>
+      {% endfor %}
+
+</ul>
+</div>
+</div>
+
+
+
+<div id="page-list" class="row sidebar-section">
+  <div class="col-md-12 alert alert-info">
+    <h2 class="widgettitle">Site Pages</h2>
+    <div class="menu">
+      <ul>
+        <li class="page_item page-item-2"><a href="/tonyprimerano">About</a></li>
+        <li class="page_item page-item-316 page_item_has_children"><a href="/home">Home</a>
+          <ul class="children">
+            <li class="page_item page-item-267 page_item_has_children"><a href="/home/car-notes">Car Notes</a>
+              <ul class="children">
+                <li class="page_item page-item-274"><a href="/home/car-notes/1996-vw-golf-gto-2-0l">1996 VW Golf GTI 2.0L</a></li>
+                <li class="page_item page-item-272"><a href="/home/car-notes/2004-dodge-grand-caravan-notes">2004 Dodge Grand Caravan Notes</a></li>
+                <li class="page_item page-item-269"><a href="/home/car-notes/2008-honda-fit-notes">2008 Honda Fit Notes</a></li>
+                <li class="page_item page-item-396"><a href="/home/car-notes/2012-toyota-sienna">2012 Toyota Sienna</a></li>
+              </ul>
+            </li>
+            <li class="page_item page-item-318"><a href="/home/circuit-breakers">Circuit Breakers</a></li>
+            <li class="page_item page-item-280"><a href="/home/energy-use-notes">Energy Use Notes</a></li>
+          </ul>
+        </li>
+        <li class="page_item page-item-257 page_item_has_children"><a href="/tech-stuff">Tech Stuff</a>
+          <ul class="children">
+            <li class="page_item page-item-283"><a href="/tech-stuff/editing-css-and-javascript-on-live-sites">Editing CSS and Javascript on Live Sites</a></li>
+            <li class="page_item page-item-310"><a href="/tech-stuff/first-data-ruby-on-rails-gem">First Data Ruby on Rails GEM</a></li>
+            <li class="page_item page-item-285 page_item_has_children"><a href="/tech-stuff/http-notes">HTTP Notes</a>
+              <ul class="children">
+                <li class="page_item page-item-262"><a href="/tech-stuff/http-notes/dumping-http-headers">Dumping HTTP Headers</a></li>
+                <li class="page_item page-item-287"><a href="/tech-stuff/http-notes/making-http-requests-via-telnet">Making HTTP requests via telnet</a></li>
+              </ul>
+            </li>
+            <li class="page_item page-item-312"><a href="/tech-stuff/open-source-contributions">Open Source Contributions</a></li>
+            <li class="page_item page-item-326"><a href="/tech-stuff/photo-notes">Photo Notes</a></li>
+            <li class="page_item page-item-308"><a href="/tech-stuff/setting-up-djbdns-on-linux">Setting up DJBDNS on Linux</a></li>
+            <li class="page_item page-item-277"><a href="/tech-stuff/useful-code-pages">Useful Code Pages</a></li>
+            <li class="page_item page-item-290 page_item_has_children"><a href="/tech-stuff/deprecated-tech-notes">Deprecated Tech Notes</a>
+              <ul class="children">
+                <li class="page_item page-item-306"><a href="/tech-stuff/deprecated-tech-notes/ac-211-sr-configuration-for-viatalk">AC-211-SR configuration for ViaTalk</a></li>
+                <li class="page_item page-item-329 page_item_has_children"><a href="/tech-stuff/deprecated-tech-notes/aim-pages-modules-web-services-examples">AIM Pages Modules / Web Services Examples</a>
+                  <ul class="children">
+                    <li class="page_item page-item-340"><a href="/tech-stuff/deprecated-tech-notes/aim-pages-modules-web-services-examples/aim-pages-modules-faq">AIM Pages Modules FAQ</a></li>
+                    <li class="page_item page-item-335"><a href="/tech-stuff/deprecated-tech-notes/aim-pages-modules-web-services-examples/the-eyes-service">The Eyes Service</a></li>
+                    <li class="page_item page-item-331"><a href="/tech-stuff/deprecated-tech-notes/aim-pages-modules-web-services-examples/the-fortune-service">The Fortune Service</a></li>
+                    <li class="page_item page-item-333"><a href="/tech-stuff/deprecated-tech-notes/aim-pages-modules-web-services-examples/the-visitors-service">The Visitors Service</a></li>
+                  </ul>
+                </li>
+                <li class="page_item page-item-292"><a href="/tech-stuff/deprecated-tech-notes/bebo-examples">Bebo Examples</a></li>
+                <li class="page_item page-item-295 page_item_has_children"><a href="/tech-stuff/deprecated-tech-notes/rails-v1-notes">Rails v1 Notes</a>
+                  <ul class="children">
+                    <li class="page_item page-item-378"><a href="/tech-stuff/deprecated-tech-notes/rails-v1-notes/ruby-on-rails-with-no-database">Ruby on Rails With No Database</a></li>
+                    <li class="page_item page-item-380"><a href="/tech-stuff/deprecated-tech-notes/rails-v1-notes/testing-ruby-on-rails-models-with-no-database-mapping">Testing Ruby on Rails Models with no Database Mapping</a></li>
+                  </ul>
+                </li>
+                <li class="page_item page-item-304"><a href="/tech-stuff/deprecated-tech-notes/ruby-on-rails-sitemap-generator">Ruby on Rails Sitemap Generator</a></li>
+                <li class="page_item page-item-297"><a href="/tech-stuff/deprecated-tech-notes/ruby-on-rails-v2-notes">Ruby on Rails v2 Notes</a></li>
+                <li class="page_item page-item-299"><a href="/tech-stuff/deprecated-tech-notes/setting-up-aols-open-auth-with-ruby-on-rails">Setting up AOL’s Open Auth with Ruby on Rails</a></li>
+                <li class="page_item page-item-314"><a href="/tech-stuff/deprecated-tech-notes/social-aggregators">Social Aggregators</a></li>
+                <li class="page_item page-item-301"><a href="/tech-stuff/deprecated-tech-notes/web-developer-checklist-2006">Web Developer Checklist (2006)</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li class="page_item page-item-4"><a href="/wiki">Wiki</a></li>
+      </ul>
+    </div>
+  </div>
+</div>

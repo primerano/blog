@@ -1,0 +1,152 @@
+---
+layout: page
+status: publish
+published: true
+title: Setting up AOL's Open Auth with Ruby on Rails
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 299
+wordpress_url: http://blog.tonycode.com/?page_id=299
+date: '2011-12-20 21:13:01 -0500'
+date_gmt: '2011-12-21 02:13:01 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h1></h1>
+<p>The current <a title="http://dev.aol.com/openauth refapp#ruby" href="http://dev.aol.com/openauth_refapp#ruby" rel="nofollow">example</a> on the <a title="http://dev.aol.com/openauth refapp#ruby" href="http://dev.aol.com/openauth_refapp#ruby" rel="nofollow">AOL/AIM site</a> leaves out details an functions. Here is my quick guide to using open auth with Ruby on Rails.</p>
+<p>Step 1: <a title="http://dev.aol.com/keys" href="http://dev.aol.com/keys" rel="nofollow">Get a DEVID</a>. For referer use <a title="http://yourhost:youport/auth/signin" rel="nofollow">http://yourhost:youport/auth/signin</a></p>
+<p>Step 2: set DEVID in your environment.rb file to the value you were given</p>
+<p>Step 3: Copy this controller (setup an index_url map in routes.rb or change references to index_url below)</p>
+<pre>class AuthController &lt; ApplicationController
+
+def signin
+    redirect_to "http://api.screenname.aol.com/auth/login?devId=#{DEVID}&amp;f=xml&amp;succUrl=http://" + request.host + ':' + request.port.to_s + "/auth/signedin";
+end
+
+# this is where SUCCESSURL points
+def signedin
+    xml_data = params[:res]
+    if xml_data.empty?
+      # token fetch failed.  Try againa
+      # will this work?  =&gt; redirect_to signin
+      redirect_to "http://api.screenname.aol.com/auth/login?devId=#{DEVID}&amp;f=xml&amp;succUrl=http://" + request.host + ':' + request.port.to_s + "/auth/signedin";
+    end
+
+    token=""
+    doc=REXML::Document.new(xml_data)
+    doc.elements.each('response/data/token/a') do |t|
+      token=t.text
+    end
+
+    session[:aim_token] = token #save in case we need more requests
+
+    if token.empty?
+      flash[:error] = "We had, ummm, a problem logging you in."
+      redirect_to index_url
+    end
+
+    # We have the token.  Now lets get their loginId 
+    url="http://api.screenname.aol.com/auth/getInfo?devId=#{DEVID}&amp;f=xml&amp;referer=#{referer()}&amp;a="+token
+    logger.info("getting " + url)
+
+    req = handy_get(url,3)
+
+    info_doc = REXML::Document.new(req[:body])
+    login_id = ""
+
+    info_doc.elements.each('response/data/userData/loginId') do |l|
+      login_id = l.text
+    end
+
+    logger.info("login_id:")
+    logger.info(login_id)
+
+    if login_id.empty?
+      flash[:error] = "Unable to get your screenname."
+      redirect_to index_url
+    else
+      session[:login_id] = login_id
+
+      #  We have the login Id.  Now we can access any 
+      # local data we have about the user (Add DB code here if necessary)
+
+      # if you were using a filter to protect sections of your site use these sessions to send them back
+      if session[:intended_url]
+        redirect_to session[:intended_url]
+      else
+        if session[:intended_action] &amp;&amp; session[:intended_controller]
+          redirect_to url_for(:controller =&gt; session[:intended_controller], :action =&gt; session[:intended_action])
+        else
+           redirect_to index_url
+        end
+      end
+    end
+  end
+ private
+ def referer
+   return "http://" + request.host + ':' + request.port.to_s + "/auth/signin"
+ end
+
+   def handy_get(url,timeout=3)
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host,uri.port)
+    path=uri.path
+    if uri.query
+      path=uri.path+"?"+uri.query
+    end
+    logger.info(["combined path:",path])
+    g = Net::HTTP::Get.new(path)
+    http.read_timeout = timeout
+    begin
+      res = http.start { |web|
+        web.request(g)
+      }
+    rescue Timeout::Error
+      return {
+        :status =&gt; "fail",
+        :body =&gt; ""
+      }
+    else
+      logger.info(["g:",g])
+      logger.info(["http:",http])
+      logger.info(["res:",res])
+      return {
+        :status =&gt; "ok",
+        :body =&gt; res.body
+      }
+    end
+  end
+end</pre>
+<p>Step 4: goto <a title="http://yourhost:yourport/auth/signin" rel="nofollow">http://yourhost:yourport/auth/signin</a> you should get a signin screen that redirects back to our site when done.<br />
+Step 5: Do something useful. Protect a controller</p>
+<p>We'll also leverage the session[:intended_action] and session[:intended_controller] items referenced in the signedin function above.</p>
+<p>Here we have an Admin controller that checks if the user is an admin using a filter. Currently it lets anyone who is authenicated in but you can fill in that code.  ;-)</p>
+<pre>class AdminController &lt; ApplicationController
+
+  before_filter :check_admin_auth
+
+  def index
+    render :text =&gt; 'welcome ' + session[:login_id]
+  end
+
+private
+ def check_admin_auth
+    unless session[:login_id]
+      session[:intended_action] = action_name
+      session[:intended_controller] = controller_name
+      redirect_to :controller =&gt; 'auth', :action =&gt; 'signin'
+    else
+      # add logic here to check the login_id to see if is allowed to access
+      # this area.  Where appropriate      
+    end
+  end
+end</pre>
+<p>Step 6: goto <a title="http://yourhost:yourport/admin" rel="nofollow">http://yourhost:yourport/admin</a> and you will either get the sign in screen or a welcome message if you are already signed in.<br />
+Step 7: Steal this code, make it better and share it</p>

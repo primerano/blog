@@ -1,0 +1,64 @@
+---
+layout: page
+status: publish
+published: true
+title: Editing CSS and Javascript on Live Sites
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 283
+wordpress_url: http://blog.tonycode.com/?page_id=283
+date: '2011-12-20 20:58:29 -0500'
+date_gmt: '2011-12-21 01:58:29 -0500'
+categories: []
+tags: []
+comments: []
+---
+<p>The Web Developer 1.0.2 Firefox plugin by Chris Pederick is great for messing with a sites CSS and dissecting a page but what if you need to test changes on IE or you want to change javascript without changing your production pages?<br />
+The developers I work with are all using the <a title="http://xk72.com/charles/" href="http://xk72.com/charles/" rel="nofollow">Charles Web Proxy </a><br />
+Charles has a ton of great features like http logging and bandwidth throttling. But it's the URL rewriting feature that we use to redirect requests for css and js files to our local host.</p>
+<p>If you need to try changes out on your production system I suggest trying this out.</p>
+<p>Pulling javascript from different site example</p>
+<p>In charles goto tools -&gt; rewrite</p>
+<ul>
+<li>click add and name your new set</li>
+<li>enter the hosts the rewrite rule applies to</li>
+</ul>
+<p>Click add to add a rule to the set</p>
+<ul>
+<li>In Match type a URL to a file that you want to serve from a different location
+<ul>
+<li>ex. <a title="http://tonycode.com/js/site.js" href="http://tonycode.com/js/site.js" rel="nofollow">http://tonycode.com/js/site.js</a></li>
+</ul>
+</li>
+<li>In New type where to get this file from
+<ul>
+<li>ex. <a title="http://localhost:8000/js/site.js" href="http://localhost:8000/js/site.js" rel="nofollow">http://localhost:8000/js/site.js</a></li>
+</ul>
+</li>
+<li>select "replace all"</li>
+</ul>
+<p>Now your browser thinks it is getting site.js from tonycode.com but in reality Charles will return the copy from your localhost.</p>
+<p>Changing a query parameter example</p>
+<p>In charles goto tools -&gt; rewrite click add and name your new set enter the hosts the rewrite rule applies to</p>
+<p>Click add to add a rule to the set In Match select "Modify Query Param" In this case I want to change the host specified in a url parameter In Match</p>
+<ul>
+<li>name=url</li>
+<li>value=(.*?)mysite.com(.*)</li>
+</ul>
+<p>In New</p>
+<ul>
+<li>name=url</li>
+<li>value=$1mybetasite.com$2</li>
+</ul>
+<p>select "replace all"</p>
+<p>Now when i request <a title="http://somesite.com/proxy?url=mysite.com" href="http://somesite.com/proxy?url=mysite.com" rel="nofollow">http://somesite.com/proxy?url=mysite.com</a>... it will modify the url parameter to use mybetasite.com instead</p>
+<p>&nbsp;</p>
+<h3>Pulling all content for Site A from Site B example</h3>
+<p>Create a "hosts" rule In Match put site A and out site B in New.</p>
+<p>Good way to flip pieces of a page to a beta environment.</p>

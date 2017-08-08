@@ -1,0 +1,219 @@
+---
+layout: page
+status: publish
+published: true
+title: The Fortune Service
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 331
+wordpress_url: http://blog.tonycode.com/?page_id=331
+date: '2011-12-20 21:42:40 -0500'
+date_gmt: '2011-12-21 02:42:40 -0500'
+categories: []
+tags: []
+comments: []
+---
+<p>I wanted to build a simple module for the AOL <a title="http://www.aimpages.com/" href="http://www.aimpages.com/" rel="nofollow">AIM Pages site</a> and I wanted to start with something really simple so why not turn the classic Unix fortune program into a service.</p>
+<p>&nbsp;</p>
+<p>At first I figured I would just use an existing service but the only one I could find was written in SOAP and for me to parse that in javascript would take longer than writing a REST service from scratch.</p>
+<p>So I dug around some PHP sites (not a language I normally use) and before long I had a simple service..</p>
+<p>version 0.1</p>
+<ul>
+<li>This version supports 4 types of output
+<ul>
+<li>XML</li>
+<li>javascript output via document.write</li>
+<li>javascript with fortune returned in a variable</li>
+<li>plain HTML output</li>
+</ul>
+</li>
+<li>I read the unix.txt (or funny.txt) file and make some changes to support the javascript and XML output. (much of this is probably unnecessary since I am using CDATA)</li>
+<li>To keep load on the machine low and response time good, I used <a title="http://www.phpguru.org/static/Caching.html" href="http://www.phpguru.org/static/Caching.html" rel="nofollow">Richard Heyes' cache code</a> to keep the formatted data in memory.</li>
+<li>Everytime someone hits the service they get a new fortune.</li>
+<li>To prevent quotes in the fortunes from messing up my javascript output I urlencoded all the data then had the resulting javascript unencode it when it was finished. There is probably an easier way to do this but I don't really know javascript.</li>
+</ul>
+<pre>&lt;?php
+include("Cache.php");
+
+$fileName = "unix.txt";
+
+$category = "";
+if (isset($_GET["category"])) 
+	$category = $_GET["category"];
+switch ($category) {
+case "unix":
+   $fileName = "unix.txt";
+   break;
+case "funny":
+   $fileName = "funny.txt";
+   break;
+case "default":
+   $fileName = "unix.txt";
+   break;
+}
+
+if (!$result = DataCache::Get("test123", $fileName)) {
+	$result = array();
+	$lines = file($fileName);
+	$current = "";
+
+	foreach ($lines as $line_num =&gt; $line) {
+		if (strcmp(substr($line,0,1),'%') ==0) {
+			$result[] = $current;
+			$current = "";
+		} else {
+			// escape &amp;
+			$tmp = str_replace("&amp;", " &amp;", substr($line,0, strlen($line)));
+			// Preserve spaces 
+			$tmp = str_replace("  ", "  ", substr($tmp,0, strlen($tmp)));
+			// escape &lt; 
+			$tmp = str_replace("&lt;", " &lt;", substr($tmp,0, strlen($tmp)));
+			// escape &gt; and replace line feed with br tag
+			$tmp = str_replace("&gt;", " &gt;", substr($tmp,0, strlen($tmp)-1)). "&lt;br /&gt;";
+			// add to current fortune
+			$current .= $tmp;
+		}
+	}
+	if (strlen($current) &gt; 0 )
+		$result[] = $current;
+
+	DataCache::Put("test123", $fileName, 6, $result);
+}
+
+// Do something useful with $result
+srand ((double) microtime() * 1000000);
+$randomquote = rand(0,count($result)-1);
+
+$format = "";
+if (isset($_GET["format"])) 
+   $format = $_GET["format"];
+
+ // prevent caching
+header("Cache-Control: no-store");
+header("Pragma: no-cache");
+header("Expires: Thursday, 05-May-05 05:05:05 GMT");
+
+   switch ($format) {
+	   case "js":
+ 	     header("Content-type: text/plain");
+         echo "function fortune() {";
+	     echo "document.write(\"&lt;p&gt;\");";
+   	     echo "document.write(unescape(\"" . rawurlencode($result[$randomquote]) . "\"));";
+	     echo "document.write(\"&lt;/p&gt;\");";
+	     echo "}";
+	   break;
+	   case "jsVar":
+ 	     header("Content-type: text/plain");
+         echo "var fortune=\"" . rawurlencode($result[$randomquote]) . "\";";
+	   break;
+
+	   case "xml":
+		   header("Content-type: application/xml; charset=utf-8");
+		   echo "&lt;?xml version=\"1.0\" encoding=\"iso-8859-1\"?&gt;";
+		   echo "&lt;fortune&gt;";
+   		   echo "&lt;![CDATA[" . $result[$randomquote] ."]]&gt;";
+		   echo "&lt;/fortune&gt;";	
+
+       break;
+       default:
+		   header("Content-type: text/html");
+		   echo   $result[$randomquote] ;
+
+}
+?&gt;</pre>
+<p>Output types..</p>
+<ul>
+<li><a title="http://tonycode.com/service/fortune-0.1/fortune.php?format=js" href="http://tonycode.com/service/fortune-0.1/fortune.php?format=js" rel="nofollow">http://tonycode.com/service/fortune-0.1/fortune.php?format=js</a>
+<ul>
+<li>Returns javascript that outputs the fortune via document.write (good for basic injection)</li>
+</ul>
+</li>
+<li><a title="http://tonycode.com/service/fortune-0.1/fortune.php?format=jsVar" href="http://tonycode.com/service/fortune-0.1/fortune.php?format=jsVar" rel="nofollow">http://tonycode.com/service/fortune-0.1/fortune.php?format=jsVar</a>
+<ul>
+<li>Returns the fortune in a javascript variable that needs to be unescaped (good for injection via innerHTML</li>
+</ul>
+</li>
+<li><a title="http://tonycode.com/service/fortune-0.1/fortune.php?format=xml" href="http://tonycode.com/service/fortune-0.1/fortune.php?format=xml" rel="nofollow">http://tonycode.com/service/fortune-0.1/fortune.php?format=xml</a>
+<ul>
+<li>Returns the fortune in xml format (good for xsl transformations)</li>
+</ul>
+</li>
+<li><a title="http://tonycode.com/service/fortune-0.1/fortune.php" href="http://tonycode.com/service/fortune-0.1/fortune.php" rel="nofollow">http://tonycode.com/service/fortune-0.1/fortune.php</a>
+<ul>
+<li>Returns the fortune as an html snippet (good for ajax)</li>
+</ul>
+</li>
+</ul>
+<p>To use the javascript you would src in <a title="http://tonycode.com/service/fortune-0.1/fortune.php?format=js" href="http://tonycode.com/service/fortune-0.1/fortune.php?format=js" rel="nofollow">http://tonycode.com/service/fortune-0.1/fortune.php?format=js</a> in your javascript block and then call the fortune function.</p>
+<p>On iamalpha.com my module manifest uses the jsVar format and looks like this..</p>
+<pre>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"  &gt;
+&lt;head profile="http://iamalpha.com/.developer/profile"&gt;
+ &lt;title&gt;Fortune&lt;/title&gt;
+ &lt;link href="Fortune.css" id="Fortune-css" rel="stylesheet" type="text/css"/&gt;
+&lt;script language="JavaScript1.1" src="http://tonycode.com/service/fortune-0.1/fortune.php?format=jsVar" type="text/javascript" &gt;&lt;/script&gt;
+
+&lt;!-- defines initFortune() --&gt;
+&lt;script language="JavaScript1.1" type="text/javascript" src="Fortune.js"&gt;
+&lt;/script&gt;
+
+&lt;/head&gt;
+
+&lt;body id="Fortune" onload="initFortune()" &gt;
+		&lt;h1&gt;Fortune: Version &lt;span&gt;1.0&lt;/span&gt;&lt;/h1&gt;
+
+		&lt;h2&gt;View Interface&lt;/h2&gt;
+		&lt;div&gt;
+				&lt;div&gt;&lt;h3&gt;Random Quotes&lt;/h3&gt;&lt;/div&gt;
+			&lt;div&gt;
+
+&lt;div id="fortuneDiv"&gt; fortune goes here &lt;/div&gt;
+
+&lt;p&gt; Fortune/version 0.1 &lt;a href="http://www.tonycode.com/forum/"&gt;
+suggestions? &lt;/a&gt;&lt;/p&gt;
+  		    &lt;/div&gt;
+
+		&lt;/div&gt;
+
+		&lt;h3&gt;Description&lt;/h3&gt;
+		&lt;p&gt;An implementation of Unix fortune&lt;/p&gt;
+		&lt;h3&gt;Detail&lt;/h3&gt;
+		&lt;p&gt;A simple module to display a fortune&lt;/p&gt;
+		&lt;h3&gt;License&lt;/h3&gt;
+		&lt;p&gt;&lt;a href="http://www.gnu.org/copyleft/lesser.html" rel="license"&gt;GNU Lesser &lt;/a&gt;.&lt;/p&gt;
+
+		&lt;h3&gt;Author Information&lt;/h3&gt;
+		&lt;ul&gt;
+			&lt;li&gt;
+			 &lt;a href="mailto:whatever@tonycode.com"&gt;Tony Primerano&lt;/a&gt; - 
+			 &lt;a href="http://tonycode.com/"&gt;Homepage&lt;/a&gt;&lt;/li&gt;
+		&lt;/ul&gt;
+
+		&lt;h3&gt;Module Properties&lt;/h3&gt;
+		&lt;dl&gt;
+			&lt;dt&gt;Liquid width module?&lt;/dt&gt;
+			&lt;dd&gt;true&lt;/dd&gt;
+			&lt;dt&gt;Allow multiple module instances on a single page?&lt;/dt&gt;
+			&lt;dd&gt;false&lt;/dd&gt;
+
+			&lt;dt&gt;Module's default width (in pixels):&lt;/dt&gt;
+			&lt;dd&gt;0&lt;/dd&gt;
+			&lt;dt&gt;Module's minimum width (in pixels, please, see I asked nicely that time):&lt;/dt&gt;
+			&lt;dd&gt;100&lt;/dd&gt;
+			&lt;dt&gt;Thumbnail&lt;/dt&gt;
+			&lt;dd&gt;&lt;img alt="fortune cookie" src="Fortune.jpg"/&gt;&lt;/dd&gt;
+
+		&lt;/dl&gt;
+	&lt;/body&gt;&lt;/html&gt;</pre>
+<p>initFortune is defined in the Fortune.js file that is delivered with the module. All it does is inject the fortune into the div with the fortuneDiv id.</p>
+<pre>function initFortune() {
+document.getElementById("fortuneDiv").innerHTML=unescape(fortune);
+}</pre>
+<p>See this module and others on my page <a title="http://www.aimpages.com/tonyprimerano/profile.html" href="http://www.aimpages.com/tonyprimerano/profile.html" rel="nofollow">http://www.aimpages.com/tonyprimerano/profile.html</a></p>
+<p>I need to work on the module edit mode so users can select the fortune type. And I also need to look into a way to have different fortunes display on the same page. Just in case 1 fortune isn't enough.  :-)</p>

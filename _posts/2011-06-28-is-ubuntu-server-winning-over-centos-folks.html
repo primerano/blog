@@ -1,0 +1,68 @@
+---
+layout: post
+status: publish
+published: true
+title: Is Ubuntu Server winning over CentOS folks?
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 244
+wordpress_url: http://www.tonycode.com/blog/?p=244
+date: '2011-06-28 13:35:03 -0400'
+date_gmt: '2011-06-28 18:35:03 -0400'
+categories:
+- work
+- tech
+tags: []
+comments:
+- id: 128196
+  author: Rob
+  author_email: box2718-safe04@yahoo.com
+  author_url: ''
+  date: '2012-03-13 21:20:48 -0400'
+  date_gmt: '2012-03-14 02:20:48 -0400'
+  content: "That was very helpful. Thanks.\r\n\r\nNow that about 6 months have passed,
+    I'd love to know what you are currently using for your deployments. Did you switch
+    to ubuntu or did you find a reason to go back to CentOS?"
+- id: 129504
+  author: Georgi
+  author_email: hipo@pc-freak.net
+  author_url: http://www.pc-freak.net
+  date: '2012-03-29 06:57:20 -0400'
+  date_gmt: '2012-03-29 11:57:20 -0400'
+  content: Hi CentOS has a good reason to keep down the version for sure. You're totally
+    right that with CentOS, there are some issues with installing a lot of latest
+    software or even compiling one. Anyways Ubuntu as a server doesn't sound like
+    a good idea. Having the latest software like in Ubuntu server has a major security
+    drawback, as I believe "time" didn't confirmed the software is reliable enough.
+    A good compromise if you're determined to  migrate from CentOS to another Linux
+    distribution is Debian stable. Debian stable has most of benefits of Ubuntu and
+    is still comes with a program versions not just released.
+- id: 129686
+  author: Tony Primerano
+  author_email: primerano@tonycode.com
+  author_url: http://openid.aol.com/tonyprimerano
+  date: '2012-03-31 13:02:15 -0400'
+  date_gmt: '2012-03-31 18:02:15 -0400'
+  content: "Inertia has kept me on CentOS for my existing projects and at my new job
+    they use RedHat like most established companies.    \r\n\r\nFortunately they seem
+    to have fixed the PCI scanner as it hasn't been failing me recently.   Maybe,
+    CentOS updated the OpenSSH string.\r\n\r\nI've had folks at my new job ask me
+    if we should look into Chef for our deployments.   My answer has been no because
+    we are on RedHat.   :-("
+---
+<p>For years I have used Ubuntu for my desktop environment and CentOS in production.  Why?   Ubuntu makes a great desktop distro and since CentOS is basically a copy of Red Hat, it is considered an enterprise OS.</p>
+<p>The trouble with being an Enterprise OS is you avoid the latest updates to the OS and aggressively patch proven packages.   CentOS has worked fine for me up until recently and I suspect all my future deployments will use Ubuntu.  CentOS packages are lagging behind and this lag is causing pain.  Here are some examples of my recent pain points.</p>
+<p>Every 3 months on the dot I fail my PCI compliance scan with the following error.</p>
+<p><em><strong>OpenSSH 4.3 is vulnerable Severity: Critical Problem</strong></em></p>
+<p>OpenSSH is up to version 5.8 but RedHat keeps patching 4.3.  It is totally secure, it has the latest patches but every 3 months I need to contact the scan company and prove that I have a patched release.  Not fun.</p>
+<p>CentOS is using gcc 4.1.2.  Gcc 4.1.2 was released in 2007 and many tools are requiring newer versions to work.  Most recently I tried using opscode/chef and while the site says it works with CentOS you'll need to update the compiler to 4.2 or higher.  This defeats the purpose of using Chef IMO.</p>
+<p>I also find myself building things like git on CentOS that are part of the standard repository on Ubuntu.  Sure, I can start adding random repositories to get these things but I'd rather work with an OS that has them in the default/supported repository.</p>
+<p>I've talking with colleagues at several other companies over the past few weeks and several are using Ubuntu Server or are planning on getting off CentOS in the near future.   A side note on Rails from my talks,  there seems to be little excitement about CoffeeScript or Sass in Rails 3.1 (just learn css and js already) and folks prefer test-unit and shoulda over rspec.    I totally agree with this sentiment.  :-)</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

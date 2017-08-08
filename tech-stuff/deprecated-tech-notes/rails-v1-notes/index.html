@@ -1,0 +1,815 @@
+---
+layout: page
+status: publish
+published: true
+title: Rails v1 Notes
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 295
+wordpress_url: http://blog.tonycode.com/?page_id=295
+date: '2011-12-20 21:10:39 -0500'
+date_gmt: '2011-12-21 02:10:39 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h3>Documentation</h3>
+<p>API -&gt; <a title="http://ap.rubyonrails.org/" href="http://ap.rubyonrails.org/" rel="nofollow">http://ap.rubyonrails.org/</a></p>
+<h3>Conventions</h3>
+<p>Rails philosophy is Convention over Configuration</p>
+<ul>
+<li>URL (with default routing)
+<ul>
+<li>1st part is controller</li>
+<li>2nd is action</li>
+<li>3rd (if any is id)</li>
+</ul>
+</li>
+</ul>
+<p>ex: <a title="http://tonycode.com/store/view item/1" href="http://tonycode.com/store/view_item/1" rel="nofollow">http://tonycode.com/store/view_item/1</a></p>
+<p>Table Names are Plural but the Model is singular</p>
+<ul>
+<li>ruby script/generate model Author
+<ul>
+<li>Generates Authors table and Author class</li>
+</ul>
+</li>
+</ul>
+<p>Local Variables, method parameters and method names all start with lowercase letter or underscore</p>
+<p>Instance variables start with @</p>
+<p>Underscore is used in ruby. Not camelCase for methods and variables</p>
+<p>Class Names, module names and constants start with uppercase. CamelCase is used instead of underscore</p>
+<p>Symbols start with :. Treat : as the thing named.  :id is the thing named id. They are used as keys for method parameters and hash lookups.</p>
+<p>Migrations use the verb create when adding a table and uses add when adding columns to an existing table</p>
+<h3>Gotchas</h3>
+<p>Rails picks up changes to files in development and test but in production you need to restart the server. This keeps production fast by allowing the dispatcher to load files once.</p>
+<h3>Common functions</h3>
+<ul>
+<li>h outputs escaped html
+<ul>
+<li>&lt;%= h("I &lt;3 Rails &amp; Rails") %&gt;</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<h3>Variables</h3>
+<p>Variables starting with @ are instance varaibles. They can are passed from controllers to views</p>
+<p>&nbsp;</p>
+<h3>Tools and Commands</h3>
+<ul>
+<li>gem is used to keep packages up to date. Like rpm</li>
+<li>rake is ruby version of make
+<ul>
+<li>rake db:migrate <strong>does migrations</strong></li>
+<li>rake rails:update <em> updates rails'</em></li>
+</ul>
+</li>
+<li>The ruby script directory contains various commands
+<ul>
+<li>ruby script/generate model &lt;model name&gt; -- sets up new table (muse migrate before created)</li>
+<li>ruby script/generate scaffold ModelName [ControllerName] [action, ...] -- builds static scaffolding</li>
+<li>ruby script/generate migration MigrationName [options] -- builds a migration file</li>
+<li>ruby script/generate controller ControllerName [options] -- builds a controller</li>
+<li>ruby script/server [server type]-- starts the web server</li>
+<li>ruby script/console [environment] -- brings up IRB</li>
+<li>ruby script/destroy generator [options] [args] -- used to delete model, controller, etc.</li>
+<li>ruby script/about --- shows versions of everything</li>
+</ul>
+</li>
+</ul>
+<h3>Updating rails</h3>
+<ul>
+<li>gem update rails --include-dependencies</li>
+<li>gem cleanup <strong>if you want to remove old libraries</strong></li>
+<li>from app run
+<ul>
+<li>rake rails:update</li>
+<li>I needed to edit the RAILS_GEM_VERSION in &lt;my app&gt;/config/environment.rb before rake worked. New apps are probably fine.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<h3>Ubuntu setup notes</h3>
+<ul>
+<li>Install ruby and mysql
+<ul>
+<li>sudo apt-get install ruby ri rdoc mysql-server libmysql-ruby mysql-client</li>
+</ul>
+</li>
+<li>install rails
+<ul>
+<li>sudo gem install rails</li>
+</ul>
+</li>
+<li>sudo gem install mysql -- update db driver -- this fails for me.  :-\</li>
+</ul>
+<p>Before I could build mongrel I needed to get build-essential</p>
+<ul>
+<li>sudo apt-get install build-essential</li>
+</ul>
+<p>Without this I think the install ignored the http11 errors and continued on. Then you get another http11 error when you try to run it. no such file to load -- http11 (LoadError)</p>
+<p>then the install worked</p>
+<ul>
+<li>sudo gem install mongrel</li>
+</ul>
+<p>&nbsp;</p>
+<h3>Linux non-root install</h3>
+<p>Most examples I see on the net install in a users home directory and place the files in ~/bin. This hides some of the details that I think are important and can make a mess out of your home directory.</p>
+<p>Here is what I am going to install</p>
+<ul>
+<li>/oap/rails is where I am installing everything
+<ul>
+<li>/oap/rails/apps is where I will place rails applications</li>
+<li>/oap/rails/ruby is where I will place ruby</li>
+<li>/oap/rails/gem is where I will install gem</li>
+<li>/oap/rails/gems is where I will install my gems</li>
+</ul>
+</li>
+</ul>
+<p>Lets setup our environment variables ahead of time</p>
+<ul>
+<li>export PATH=/oap/rails/gem/bin:/oap/rails/ruby/bin:/oap/rails/gems/bin:$PATH</li>
+<li>export GEM_PATH=/oap/rails/gems</li>
+<li>export GEM_HOME=/oap/rails/gems</li>
+</ul>
+<p>1st item in the path is for the gem binary, 2nd is for ruby and 3rd is for installed gems</p>
+<p>Lets get ruby</p>
+<ul>
+<li>cd /oap/rails</li>
+<li>wget <a title="ftp://ftp.ruby-lang.org/pub/ruby/ruby-1.8.5.tar.gz" href="ftp://ftp.ruby-lang.org/pub/ruby/ruby-1.8.5.tar.gz" rel="nofollow">ftp://ftp.ruby-lang.org/pub/ruby/ruby-1.8.5.tar.gz</a></li>
+<li>tar -zxvf ruby-1.8.5.tar.gz</li>
+<li>cd ruby-1.8.5</li>
+<li>./configure –prefix=/oap/rails/ruby</li>
+<li>make</li>
+<li>make install</li>
+</ul>
+<p>Check that your path is correct</p>
+<ul>
+<li>which ruby
+<ul>
+<li>should return -&gt; /oap/rails/ruby/bin/ruby</li>
+</ul>
+</li>
+</ul>
+<p>Ok now lets get rubygems</p>
+<ul>
+<li>cd /oap/rails</li>
+<li>wget <a title="http://rubyforge.org/frs/download.php/20585/rubygems-0.9.3.tgz" href="http://rubyforge.org/frs/download.php/20585/rubygems-0.9.3.tgz" rel="nofollow">http://rubyforge.org/frs/download.php/20585/rubygems-0.9.3.tgz</a></li>
+<li>tar -zxvf rubygems-0.9.3.tgz</li>
+<li>cd rubygems-0.9.3</li>
+<li>ruby setup.rb config --prefix=/oap/rails/gem</li>
+<li>ruby setup.rb setup</li>
+<li>ruby setup.rb install</li>
+</ul>
+<p>check install</p>
+<ul>
+<li>which gem
+<ul>
+<li>should return /oap/rails/gem/bin/gem</li>
+</ul>
+</li>
+</ul>
+<p>Cleanup</p>
+<ul>
+<li>cd /oap/rails</li>
+<li>rm ruby-1.8.5.tar.gz rubygems-0.9.3.tgz</li>
+</ul>
+<p>Install rails via GEM</p>
+<ul>
+<li>gem install rails --remote -y</li>
+</ul>
+<p>Lets install mongrel and json for fun</p>
+<ul>
+<li>gem install mongrel --remote -y</li>
+<li>gem install json --remote -y</li>
+</ul>
+<p>MySql can be tricker. Safest if you point the installer to the correct location &gt;gem install mysql --remote -y -- --with-mysql-dir=/you/mysql/dir</p>
+<p>&nbsp;</p>
+<h3>Setting up an application</h3>
+<ul>
+<li>rails depot -- creates depot project. db can be changed with --database=&lt;db name&gt;</li>
+<li>cd depot</li>
+<li>mysqladmin -u root create depot_development -- creates development db -- rails will find this db by name</li>
+<li>rake db:migrate -- tests the db</li>
+<li>generate model for products table
+<ul>
+<li>ruby script/generate model product</li>
+<li>edit the db/migrate/001_create_products.rb file to add columns</li>
+</ul>
+</li>
+<li>rake db:migrate -- pulls in db changes -- rake db-migrate VERSION=0 will revert to original.</li>
+<li>To see the current version look at the schema_info table that rake added.
+<ul>
+<li>mysql -u root depot_development</li>
+<li>select * from schema_info;</li>
+</ul>
+</li>
+<li>Setup the controller
+<ul>
+<li>ruby script/generate controller admin -- if you want tab completion use backslash - script\generate</li>
+</ul>
+</li>
+<li>edit the app/controllers/admin_controller.rg to have
+<ul>
+<li>scaffold :product</li>
+<li>This sets up dynamic scaffolding (framework for manipulating the model)</li>
+</ul>
+</li>
+<li>Start the webrick server and bring up the admin application
+<ul>
+<li>ruby script/server webrick</li>
+<li><a title="http://localhost:3000/admin" href="http://localhost:3000/admin" rel="nofollow">http://localhost:3000/admin</a></li>
+</ul>
+</li>
+</ul>
+<h3>Debugging</h3>
+<p>In controllers you can inspect your parameters by raising an exception</p>
+<ul>
+<li>
+<ul>
+<li>raise params.inspect</li>
+</ul>
+</li>
+</ul>
+<p>tail -f logs/development.log</p>
+<p>ruby script/about --- shows versions of everything</p>
+<h3>Adding a new Column</h3>
+<ul>
+<li>create a migration
+<ul>
+<li>ruby script/generate migration add_price</li>
+</ul>
+</li>
+<li>edit the 002_add_price.rb
+<ul>
+<li>add_column :products :price, :decimal, :precision =&gt; 8, :scale =&gt; 2, :default =&gt; 0</li>
+</ul>
+</li>
+<li>migrate it
+<ul>
+<li>rake db:migrate</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<h3>Adding test data</h3>
+<p>Use a data only migration to load test data</p>
+<ul>
+<li>ruby script/generate migration add_test_data</li>
+<li>add data to the db/migrate/003_add_test_data.rb file</li>
+<li>rake db:migrate
+<ul>
+<li>add VERSION=2 to revert</li>
+<li>If any row fails validation it is not added and no error is displayed.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<h3>Adding validation to the Model</h3>
+<p>Validation is done in app/models/product.rb</p>
+<p>examples</p>
+<pre> validates_presence_of :title, :description, :image_url
+ validates_numericality_of :price
+ validates_uniqueness_of :title
+ validates_format_of :image_url,
+                     :with =&gt; %r{\.(gif|jpg|png)$}i,
+                     :message =&gt; "gif, jpg or png"
+
+ protected
+ def validate
+   errors.add(:price, "should be at least 0.01") if price.nil? || price &lt; 0.01
+ end</pre>
+<h3>Creating a static scaffold</h3>
+<p>A static scaffold allows you to modify the view code</p>
+<ul>
+<li>Usage: script/generate scaffold ModelName [ControllerName] [action, ...]</li>
+<li>ruby script/generate scaffold product admin - product is model and admin is controller
+<ul>
+<li>if the controller name is omitted the plural form of the model is used as the controller</li>
+<li>Action names can also be given with this command</li>
+</ul>
+</li>
+</ul>
+<p>Now the code is in</p>
+<ul>
+<li>app/views/admin</li>
+</ul>
+<h3>ERb/rhtml notes</h3>
+<p>ERb (Embedded Ruby) processes ruby in rhtml files</p>
+<ul>
+<li>&lt;%= %&gt; is interpreted by ruby and results are placed on page. Like php and jsp</li>
+<li>&lt;% %&gt; is interpreted by ruby but no stdout. Like php and jsp</li>
+<li>&lt;% -%&gt; prevents newlines from being left where the &lt;% %&gt; lines are</li>
+</ul>
+<pre>&lt;% 10.times do -%&gt;
+&lt;li&gt;hello&lt;/li&gt;
+&lt;% end -%&gt;</pre>
+<p>h method is used to escape text containing html. &lt;%= h("&amp;, &lt; and &gt; can mess up your page") %&gt;</p>
+<p>Talk about poor method names.</p>
+<p>For link portability it is recommended that link_to is used.</p>
+<p>&lt;%= link_to "dirt", :action =&gt; "dirt" %&gt;</p>
+<p>Different controllers can be specified.\</p>
+<p><strong>How much control do I have over the anchor parameters? the above call builds a minimalist link.</strong></p>
+<h3>Helpers</h3>
+<p>Helpers are used view reuse. They live in app/helpers/*_helper.rb</p>
+<p>app/views/something/ files use methods in app/helpers/something_helper.rb</p>
+<p>Seems like the helpers should be in app/views/helpers but its not.  :-\</p>
+<h3>Active Record Notes</h3>
+<ul>
+<li>Rails uses ORM (Object Relational Mapping) ActiveRecord is the ORM layer. Note. ActionPack is the controller and the view
+<ul>
+<li>maps tables to classes</li>
+<li>rows to objects</li>
+<li>columns to object attributes</li>
+<li>Table names are plural (but the model is singular)</li>
+<li>All tables have auto incrementing id field</li>
+<li>created_at and updated_at are managed by rails</li>
+</ul>
+</li>
+</ul>
+<p>New tables/models are created with</p>
+<ul>
+<li>ruby script/generate model &lt;model name&gt;</li>
+<li>Once created update the rb file and then run <strong>rake db:migrate</strong> to create the table</li>
+<li>from this point on you need to create migrations to update the table layout. ex: <strong>ruby script/generate migration &lt;migration name&gt;</strong></li>
+</ul>
+<p>&nbsp;</p>
+<h4>Joins</h4>
+<p>wip</p>
+<h4>Queries</h4>
+<p><strong>Basic find</strong></p>
+<ul>
+<li>item = TableName.find(:first) -- returns 1st item</li>
+<li>items = TableName.find(:all) -- returns all records in table
+<ul>
+<li>items.size =&gt; 3</li>
+</ul>
+</li>
+<li>item = TableName.find(3) -- finds a specific record
+<ul>
+<li>item.id =&gt; 2</li>
+</ul>
+</li>
+</ul>
+<p><strong>advanced find</strong></p>
+<p>conditional</p>
+<ul>
+<li>item = TableName.find(:first, :conditions =&gt; ['title =?', 'string to find'])</li>
+<li>item = TableName.find(:first, :conditions =&gt; ['title =? AND time=?', 'string to find', 2.days.ago])</li>
+<li>item = TableName.find(:all, :order =&gt; 'title DESC'. :limit =&gt; 10)</li>
+</ul>
+<p>find_by_* -- these are autogenerated</p>
+<ul>
+<li>item.find_by_title 'fred'</li>
+<li>item.find_by_rating 4</li>
+</ul>
+<p>calculations</p>
+<ul>
+<li>TableName.count</li>
+<li>TableName.average(:rating)</li>
+</ul>
+<p>destory TableName.find(:first, :conditions =&gt; ['title =?', 'spam']).each do |p| p.destroy end )</p>
+<p>&nbsp;</p>
+<h3>Migration notes</h3>
+<p>Use <strong>ruby script/generate migration &lt;migration name&gt;</strong> to create migrations. Then edit the associated db/migrate/ file and run <strong>rake db:migrate</strong><br />
+Migrations use the verb create when adding a table and uses add when adding columns to an existing table<br />
+Migrations can also be used to add data to tables.</p>
+<h3>Environments</h3>
+<p>Rails has development, test and production environments. To switch between them specify the environment on the console command</p>
+<p>ruby script/console production -- loads production ruby script/console -- loads development (default)</p>
+<p>This is changing rails environment with RAILS_ENV=development</p>
+<p>console command loads interactive ruby (IRB)</p>
+<h3>View</h3>
+<h4>Layouts and Partials</h4>
+<p>app/views/layouts</p>
+<p>to wrap all views in a controller &lt;controller name&gt;.rhtml</p>
+<p>can do application.rhtml to apply to all controllers (site look and feel)</p>
+<p>Most specific one is used. articles.rhtml will win over application.rhtml<br />
+You can also add this to your controller</p>
+<ul>
+<li>layout '&lt;layout name&gt;'
+<ul>
+<li>layout 'main'</li>
+</ul>
+</li>
+</ul>
+<p>in templates yield is called.. returns control to your page (yield your page) &lt;%= yield %&gt;<br />
+Partials are HTML snippets that are referenced in fields with</p>
+<ul>
+<li>&lt;%render :partial =&gt; 'form' %&gt;</li>
+<li>pulls in _form.rhtml</li>
+</ul>
+<p>partial templates start with _</p>
+<p>app/views/blog/_post.rhtml</p>
+<p>&lt;%= render :partial =&gt; "blog/post" %&gt;<br />
+pass in object</p>
+<p>&lt;%= render :partial =&gt; "person/profile", :object =&gt; @person %&gt;</p>
+<ul>
+<li>passes person to app/views/person/_profile.rhtml</li>
+</ul>
+<p>render collection of objects &lt;%= render :partial =&gt; "person/profile", :collection =&gt; Person.find(:all) %&gt;</p>
+<p>locals can be set to hash &lt;%= render :partial =&gt; "something", :locals =&gt; { :name =&gt; "joe", :profession =&gt; "barber" } %&gt;</p>
+<h4>Filters</h4>
+<p>Filter are specified in the controller</p>
+<ul>
+<li>simple
+<ul>
+<li>before_filter : authorize</li>
+<li>after_filter: blah</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>except and only options
+<ul>
+<li>before_filter : authorize, :except =&gt; [:rss] -- ignore rss actions. authorize is called for all other actions</li>
+<li>after_filter : runReport, :only =&gt; [:report, :audit] -- only run runReport on report and audit actions</li>
+</ul>
+</li>
+</ul>
+<p>around_filter runs before and after but is not commonly used</p>
+<p>Put filter in application controller to impact all controllers (application.rb)</p>
+<p>If filter is defined in application.rb it runs on all controllers. You can override the filter in individual controllers by overriding the method that the filter is calling.</p>
+<p>&nbsp;</p>
+<h3>Ruby Notes</h3>
+<p>Ruby has classes that have instances (objects). Functions can be added to objects (unlike other OO languages.</p>
+<p>Ruby has constructors. The standard constructor is called new</p>
+<ul>
+<li>object = ClassName.new</li>
+</ul>
+<p>each object has instance variables and instance methods that are defined in the class.</p>
+<p>ruby comments start with #</p>
+<p>2 character indentation is the ruby standard (yuck)</p>
+<p>compound statements do not use brackets. instead they use end.</p>
+<p>non-compound statments flip order and skip end</p>
+<pre>errors.add(:price, "should be at least 0.01") if price.nil? || price &lt; 0.01</pre>
+<p>instead of</p>
+<pre>if price.nil? || price &lt; 0.01
+ errors.add(:price, "should be at least 0.01") if price.nil? || price &lt; 0.01
+end</pre>
+<p>Class/Static methods are defined with self.function_name<br />
+Arrays</p>
+<p>ages = [] # empty array ages &lt;&lt; "27" # add to array<br />
+ruby convenience methods attr_reader, attr_writer, attr_accessor</p>
+<h3>Naming Conventions</h3>
+<p>Local Variables, method paramerers and method names should all start with a lowercase letter or an underscore</p>
+<p>Instance variables should begin with an @</p>
+<p>Underscores are prefered over camelcase. add_to_cart vs addToCart<br />
+Class Names, module names and constants start with upppercase letter. These use capitalization instead of underscores</p>
+<p>ShoppingCart, Object, etc..<br />
+Symbols are are prefixed with colons. These are like string literals but more efficient.</p>
+<dl>
+<dd>action, :id</dd>
+</dl>
+<h3>Methods</h3>
+<p>def hello (name)</p>
+<pre> tmp = "hello " + name  #tmp local variable is created here.  Not need to define it
+ return tmp</pre>
+<p>end</p>
+<p>invoke</p>
+<ul>
+<li>puts hello ("world")</li>
+<li>puts (hello ("world"))</li>
+</ul>
+<h3>String processing</h3>
+<p>Strings created with single quotes are used literally When double quotes are used substitution sequences like \n are replaced with binary characters. Ruby also does expression interpolation on these strings. #{expression} is replaced by value of expression</p>
+<p>def hello (name)</p>
+<pre> "hello #{name}"</pre>
+<p>end</p>
+<p>ruby returns the value of the last expression evaluated so return is optional.</p>
+<p>&nbsp;</p>
+<h3>Ruby</h3>
+<h4>Ruby Objects</h4>
+<p>ruby is more OO than Java</p>
+<p>object = Object.new object.object_id object.kind_of Object #=&gt; true object.inspect object.something_dne -- gives run time error</p>
+<p>animal = Object.new def animal.eat(food)</p>
+<pre>puts "yummmy"</pre>
+<p>end</p>
+<p>dog = animal.dup -- copies animal and can then dog can override or add methods. clone</p>
+<p>instantiating classes</p>
+<p>old_dog = Dog.new -- new is a method on all classes. In this case Dog is a class</p>
+<ul>
+<li>new creates object and calls initialize function. new is a class method (defined on Class object).</li>
+</ul>
+<h4>Ruby Namespaces</h4>
+<p>Modules are used for namespacing.</p>
+<pre>module Organizer  
+   class File
+   end
+end</pre>
+<p>file = Organizer::File.new</p>
+<p>module can also contain methods. make them class methods for ease of execution. (otherwise need Organizer.new.method_name)</p>
+<pre>module Organizer  
+   class File
+   end
+   def <strong>self</strong>.create
+     puts "hi"
+   end
+end</pre>
+<h4>Ruby Syntax</h4>
+<p>return is not required</p>
+<p>see ||= in Sessions section</p>
+<h3>Class Notes</h3>
+<p>questions</p>
+<ul>
+<li>
+<ul>
+<li>cache control and other headers</li>
+<li>accessing web services</li>
+<li></li>
+</ul>
+</li>
+</ul>
+<p>render partial from other view</p>
+<p>&lt;view name&gt;/&lt;partial name&gt;</p>
+<p>else just use &lt;partial name&gt;</p>
+<p>this also works and makes more sense /&lt;view name&gt;/&lt;partial name&gt;<br />
+&lt;% form_remote_for :comment,  :url =&gt; {:action =&gt; 'createD', :controller =&gt; 'articles'}, :update =&gt; 'foobar' do |f|%&gt;</p>
+<p>Author: &lt;%= f.text_field 'author' %&gt;<br />
+&lt;%= f.text_area 'content', :rows =&gt; 5 %&gt; &lt;%= f.hidden_field 'article_id' %&gt; &lt;%= submit_tag 'Save' %&gt;</p>
+<p>&lt;% end %&gt;</p>
+<p>&nbsp;</p>
+<p>rescue catches errors</p>
+<pre>   &lt;%= h(comment.author.name rescue 'Anonymous') %&gt; says:
+</pre>
+<p>&nbsp;</p>
+<p>Cleanup later</p>
+<p>"".blank?</p>
+<p>boolean functions often end with ?.  :-)<br />
+text_field_tag -- is general text_field -- active record specific</p>
+<p>redirect_to :back -- sends to referer<br />
+Author.find_by_name("tony").update_attribute(:password, "haha");<br />
+Models are singular.. the table is plural. When u create a scaffold, controller, etc use the singular<br />
+Random install notes</p>
+<ul>
+<li>Install ruby</li>
+<li>Install gem -- gem is like rpm?</li>
+<li>gem install rails -- not from ruby directory</li>
+<li>gem install mysql -- update db driver</li>
+<li>gem install mongrel -- installs mongrel.. makes default web server? <strong>ruby script/server</strong> or <strong>ruby script/server mongrel</strong></li>
+</ul>
+<p>mysql innodb is best for rails<br />
+using symbol objects is more efficient than using strings.  :comments is only created once.<br />
+ruby script/console -- loads ruby irb (interactive ruby)</p>
+<ul>
+<li>1+1</li>
+<li>Article.find(:all)</li>
+<li>a = Article.new</li>
+<li>a</li>
+<li>a.save</li>
+<li>Article.count</li>
+<li>Article.find(:all).size</li>
+<li>a.title="test"</li>
+<li>a.created_at</li>
+<li>a.created_at.class</li>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li>article = Article.find(:first)
+<ul>
+<li>#&lt;Article:0x48ba110 @attributes={"title"=&gt;"tseting 123", "id"=&gt;"1", "content", "tset test ster sjdfhsk sfh sd", "author_id"=&gt;nil, "created_at"=&gt;"2007-02-20 1</li>
+</ul>
+</li>
+</ul>
+<p>0:52:21"}&gt;</p>
+<ul>
+<li>article.author
+<ul>
+<li>nil</li>
+</ul>
+</li>
+<li>author = Author.create(:name =&gt; "Tony")
+<ul>
+<li>#&lt;Author:0x48ac448 @new_record=false, @new_record_before_save=true, @errors=# &lt;ActiveRecord::Errors:0x48aaa44 @errors={}, @base=#&lt;Author:0x48ac448 ...&gt;&gt;, @attributes={"name"=&gt;"Tony", "id"=&gt;2}&gt;</li>
+</ul>
+</li>
+<li>article.author = author
+<ul>
+<li>#&lt;Author:0x48ac448 @new_record=false, @new_record_before_save=true, @errors=# &lt;ActiveRecord::Errors:0x48aaa44 @errors={}, @base=#&lt;Author:0x48ac448 ...&gt;&gt;, @attributes={"name"=&gt;"Tony", "id"=&gt;2}&gt;</li>
+</ul>
+</li>
+<li>article.author.name
+<ul>
+<li>"Tony"</li>
+</ul>
+</li>
+</ul>
+<p>a = Article.create(:title =&gt; "Another article", :content="sdfsdfs", :author="fred")</p>
+<p>ruby script/generate model Author edit 003_create_authors.rb rake db:migrate ruby script/generate scaffold Author #Generates scaffolding for a specific Model</p>
+<p>colors.methods - Object.methods -- removed base methods (colors.methods - Object.methods).grep /map/ -- look for map functions colors.map{|color| color.reverse} x = colors.map{|color| color.size=4}</p>
+<p>&nbsp;</p>
+<p>methods ending with ! are typically destructive methods ending with ? usually return booleans. "".blank?</p>
+<p>&nbsp;</p>
+<h4>More Active Record</h4>
+<p>Callbacks</p>
+<p>Observers are callbacks outside of the model</p>
+<p>acts_as -- acts_as_list, acts_as_tree. these currently ship with rails but will move to plugin extends behavior of ActiveRecord models</p>
+<p>validations allow checking to make save fails also used with article.valid? method</p>
+<p>show errors on view with &lt;%= error_messsages_for 'list' %&gt;</p>
+<p>&nbsp;</p>
+<p>with custom validations you fail it by adding to errors @errors.add "u messed up" irb... (1..2).class (1..2).to_a</p>
+<h3>Testing</h3>
+<p>Test order is undefined (actually they are run in alphabetical.. but that could change)</p>
+<p>Each test is run in a transaction and the changes are rolled back in the DB before the next test. This allows tests to be run in any order and ensures they are independent. So if you have a test that deletes a record it will be available for the next test.</p>
+<h4>Unit tests (model tests)</h4>
+<p>tests a specific model</p>
+<p>rake test:units<br />
+cool thing to add to test_helper.rb</p>
+<p><strong>check syntax</strong> def assert_not_valid (model)</p>
+<pre> assert(!model.valid?)</pre>
+<p>end<br />
+Do tests in memory (not db) when possible to keep fast. Doesn't hit db unless .save . Fast tests mean you'r emore likely to run them.  :-)</p>
+<pre>   article = Article.new 
+   assert(!article.valid?)
+   article.content="foo"
+   assert(!article.valid?)
+   article.title="title foo"
+   assert(!article.valid?)
+   article.author_id=1
+   assert(article.valid?)</pre>
+<h4>Functional tests (Controller tests)</h4>
+<p>Unit tests for a single controller</p>
+<p>assert_equal("joe", assigns(:person).name)</p>
+<p>assigns only on Functional tests</p>
+<h4>Integration Tests</h4>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3>Routes</h3>
+<p>Is mod_rewrite for rails</p>
+<p>YOU MUST RESTART SERVER WHEN CHANGING</p>
+<p>Default behavior is</p>
+<ul>
+<li>/lists/show/111
+<ul>
+<li>lists = controller</li>
+<li>action = show</li>
+<li>id = 111</li>
+</ul>
+</li>
+<li>config/routes.rb
+<ul>
+<li>map.connect ':controller/:action/:id'</li>
+</ul>
+</li>
+</ul>
+<dl>
+<dd>controller, :id, etc become variables available to code</dd>
+</dl>
+<p>Pretty URLs are good for SEO.</p>
+<ul>
+<li>map.connect 'products/:id', controller =&gt; 'catalog', :action =&gt; 'view'
+<ul>
+<li><a title="http://host.com/products/1234" href="http://host.com/products/1234" rel="nofollow">http://host.com/products/1234</a></li>
+</ul>
+</li>
+<li>map.connect <em>, controller =&gt; 'welcome'</em>
+<ul>
+<li><a title="http://host.com/" href="http://host.com/" rel="nofollow">http://host.com/</a></li>
+</ul>
+</li>
+<li>map.connect ':controller/:action/:id' <strong>this is default</strong>
+<ul>
+<li>/blog/show/123</li>
+</ul>
+</li>
+</ul>
+<p>note that any file in public will win over route. index.html, etc This is because cached files are put in public</p>
+<p>mephisto does some custom routing (rich alston)<br />
+map.&lt;route name&gt; &lt;pattern to match&gt; &lt;app location mapping&gt;</p>
+<p>defaults</p>
+<ul>
+<li>map.blog_post 'blog/show/:id' controller =&gt; 'blog', :action =&gt; 'show' , :id=1
+<ul>
+<li>if blog/show or blog/show/ entered id is set to 1</li>
+</ul>
+</li>
+</ul>
+<p>splat parameters (splat = *)</p>
+<p>map.tag_it 'tag/:id/*tags', :controller =&gt; 'posts', :action =&gt; 'tag'</p>
+<p>params[:tags] contains the remainder of the URI<br />
+named routes used in URL generation too .... add</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h4>random</h4>
+<p>exception notifier emails</p>
+<p>&nbsp;</p>
+<h3>caches_page</h3>
+<p>in development file is created but rebuilt each time because development</p>
+<p>enviroments/development.rb lest you change this</p>
+<p>generated files are put in public.</p>
+<p>cached files live forever so use is limited.<br />
+cache sweeper can clear items. after_save erch ActionController::Caching::Sweeping</p>
+<p>better than observer because you have access to ??</p>
+<p>&nbsp;</p>
+<h3>CRUD and REST</h3>
+<p>Rails 2.0 is a big change</p>
+<p>&nbsp;</p>
+<p>Don't Repeat yourself --- the pragmatic programmer</p>
+<p>(Almost) every model gets a controller with pluralized name:<br />
+POST /profiles will do create action in profiles controller GET /profiles/123 will do show action in profiles controller PUT /profiles/1 (simulated with _method parameter on POST) will do update action in profiles controller DELETE /profiles/1 (simulated with _method parameter on POST) will do destroy action in profiles controller</p>
+<p>map.resources :articles sets up mapping in 1.2 to use the RESTful principals</p>
+<ul>
+<li>1st line in routes.rb</li>
+<li>to add non-rest actions
+<ul>
+<li>To allow hello_world on GET now you need to</li>
+<li>map.resources :articles, :collection =&gt; {:hello_world =&gt; :get } -- something wrong</li>
+</ul>
+</li>
+</ul>
+<p>you can see the mappings in IRB via</p>
+<ul>
+<li>puts ActionController::Routing:Routes.routes</li>
+</ul>
+<p>scaffold_resource generates new 2.0 type scaffolding with the resources map</p>
+<p>new command lets you specify model in command line. no more need to generate model separately.</p>
+<p>now adding new actions won't work .. need to explicitly set allowed methods for actions. In map.resources command. see above</p>
+<p>If request is in XML then rails will treat it like params format</p>
+<p>returning active record items as xml is easy with .to_xml</p>
+<ul>
+<li>puts Profile.find(:all).to_xml</li>
+</ul>
+<p>Has someone written a to_json extension?</p>
+<p>respond_to lets code perform different actions depending on format parameter.</p>
+<p>&nbsp;</p>
+<h3>ActionMailer</h3>
+<p>Usage: script/generate mailer MailerName [options]</p>
+<pre>./script/generate mailer Notifications signup forgot_password invoice</pre>
+<p>by default it is using smtp server on localhost</p>
+<h3>Plugins</h3>
+<p>Simple way to extend or patch a Rails application or Rails itself</p>
+<p>Monkey patching -- changing rails by overriding methods</p>
+<p>ruby script/plugin list ruby script/plugin sources</p>
+<p>This page is scraped by plugin script. messy <a title="http://wiki.rubyonrails.com/rails/pages/Plugins" href="http://wiki.rubyonrails.com/rails/pages/Plugins" rel="nofollow">http://wiki.rubyonrails.com/rails/pages/Plugins</a></p>
+<p>ruby script/plugin discover runs through items on site<br />
+install exception_notification plugin</p>
+<ul>
+<li>ruby script/plugin install exception_notification</li>
+</ul>
+<p>remove exception_notification plugin</p>
+<ul>
+<li>ruby script/plugin remove exception_notification</li>
+</ul>
+<p>or just filesystem remove. but better to do plugin remove in case there are install/uninstall hooks<br />
+vendor/plugins</p>
+<h3>random</h3>
+<p>Handling null values using rescue &lt;%= article.author.name rescue 'anonymous'%&gt;</p>
+<p>changing the log level environment.rb config.log_level = :debug</p>
+<p>to save query</p>
+<p>Article.find(1, :include =&gt; :author}.author Article.find(1, :include =&gt; [:author, :comments]} -- gets author and comments. can be heavy<br />
+specific query Article.find(1, :joins =&gt; 'LEFT OUTER JOIN commens ON comments.article_id = articles.id')</p>
+<p>Article.find(1, :select =&gt; 'articles.*, comments.content', :joins =&gt; 'LEFT OUTER JOIN commens ON comments.article_id = articles.id')<br />
+just sql.. Article.find_by_sql("select * from articles").first.title</p>
+<p>&nbsp;</p>
+<p>keep custom SQL out of controller. make an method that does the SQL and calls it from the controller</p>
+<p>paginator is being removed so don't use</p>
+<p>&nbsp;</p>
+<h3>Sessions</h3>
+<p>sessions are in app/tmp unless say we want in db via</p>
+<ul>
+<li>rake db:sessions:create <strong>special rake task creates migration for us</strong></li>
+<li>rake db:migrate</li>
+<li>In environment.rb set <strong>config.action_controller.session_store = :active_record_store</strong></li>
+</ul>
+<p>Example from book. shows unless block and teh fact that a return statement is not needed in ruby</p>
+<pre> def find_cart
+   unless session[:cart]
+     session[:cart]= Cart.new
+   end
+   session[:cart] # returns the cart
+ end</pre>
+<p>A simpler way is</p>
+<pre> def find_cart
+   session[:cart] ||= Cart.new
+ end</pre>
+<p>confusing eh?</p>
+<h3>Deployment</h3>
+<p>apache 2 (w/mod_proxy_balance) -- mongrel/rails -- db server</p>
+<p>&nbsp;</p>
+<p>db fields do not expire themselves. use cron?</p>
+<p>rails is single threaded so no thread safe stuff in rails.</p>
+<p>i think should have a filter that purges after every X requests.</p>
+<p>Capistrano deployment system</p>
+<p>sudo gem install capistrano termios <strong> terminos has posix terminal support</strong></p>
+<p>run with <strong>cap -A .</strong> use dot if in root of app</p>
+<p>edit config/deploy.rb</p>
+<p><strong>cap setup</strong> sets up dir structure on remote machines</p>
+<p><strong>cap deploy </strong> starts it up</p>
+<p><strong>cap rollback</strong> rolls back to last version. all deployments have a timestamp in directory name</p>
+<h3>debugging</h3>
+<p>raise @article.inspect<br />
+breakpoint -- put method in code. hangs code until you jump in with breakpointer</p>
+<p>ruby script/breakpointer</p>
+<p>puts in irb prompt self.controller_name self.action_name @articles.first.title</p>
+<p>can set vars..</p>
+<p>exit causes rails app to resume (to next breakpoint) exit! tells to leave now.. ignore rest</p>
+<p>this is broken in 1.8.5</p>
+<p>ruby -c test.rb -- checks syntax on test.rb</p>
+<h3>scratch</h3>
+<p><a title="http://localhost:3001/visitors/visit?KEY=null" href="http://localhost:3001/visitors/visit?KEY=null" rel="nofollow">http://localhost:3001/visitors/visit?KEY=null</a></p>

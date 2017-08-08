@@ -1,0 +1,110 @@
+---
+layout: post
+status: publish
+published: true
+title: Rack-Cache on Rails 3 - the unadvertised caching option
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 418
+wordpress_url: http://blog.tonycode.com/?p=418
+date: '2012-03-28 20:36:31 -0400'
+date_gmt: '2012-03-29 01:36:31 -0400'
+categories:
+- tech
+- rails
+tags: []
+comments:
+- id: 173999
+  author: Mike Virata-Stone
+  author_email: stonemj@gmail.com
+  author_url: http://reasonnumber.com
+  date: '2012-12-12 23:54:59 -0500'
+  date_gmt: '2012-12-13 04:54:59 -0500'
+  content: Thank you so much for this post!  I have been banging my head against a
+    wall because of rack caching for a while now.  For the longest time I thought
+    it was nginx doing this caching, because I saw nginx had the page hit, but not
+    Rails.  Then I recently had the revelation that perhaps it was Passenger doing
+    the caching, which led me to the tmp/cache directory.  When that didn't seem to
+    be it, I finally landed here and was able to fix my issue!
+- id: 185022
+  author: Wm Lane
+  author_email: wm-lane-qo31@aol.com
+  author_url: http://cazadebunkers.wordpress.com/2012/07/28/conozcan-quien-es-y-como-piensa-el-actual-asesor-de-ob
+  date: '2013-02-12 02:11:03 -0500'
+  date_gmt: '2013-02-12 07:11:03 -0500'
+  content: tokens indicate that the item was not found in the cache but has been saved
+    for the next request.
+- id: 296396
+  author: CaDs
+  author_email: cdonderis@gmail.com
+  author_url: http://donderis.net
+  date: '2013-12-03 04:26:35 -0500'
+  date_gmt: '2013-12-03 09:26:35 -0500'
+  content: "Man, you just make my day!\r\nThanks thanks thanks thanks! \r\nI have
+    been chasing this ghost for almost one week!"
+---
+<p>Today I was poking around in the rails tmp/cache directory and I saw an entry I did not expect. It appeared that a controller action was being cached but I was not using, page, action or fragment caching.</p>
+<p>I was setting an expiration header on the action response and as it turns out there is a handy gem in rails now called <a href="http://rtomayko.github.com/rack-cache/" target="_blank">rack-cache</a>. Rack-cache will create cache entries for items that you set future a expiration for. Since this isn't mentioned in the <a href="http://guides.rubyonrails.org/caching_with_rails.html" target="_blank">Rails Caching Guide</a> it took me a little while to track it down.</p>
+<p>Here's a quick example of it in action</p>
+<p>Create a dummy app</p>
+<pre>rails new rack-cache
+cd rack-cache
+bundle exec rails generate controller RackCache cache_this</pre>
+<p>Edit the cache_this method</p>
+<pre>class RackCacheController &lt; ApplicationController
+def cache_this
+    render :text =&gt; Time.zone.now.to_s
+  end
+end</pre>
+<p>Fire it up in production mode so caching is enabled</p>
+<pre>RAILS_ENV=production bundle exec rails s -p6666</pre>
+<p>When you hit the page in the browser and hit reload you'll see the time change</p>
+<p>http://localhost:6666/rack_cache/cache_this</p>
+<pre>2012-03-29 00:40:09 UTC
+2012-03-29 00:40:29 UTC</pre>
+<p>Now lets change the action slightly</p>
+<pre>class RackCacheController &lt; ApplicationController
+  def cache_this
+    expires_in(5.minutes, :public =&gt; true)
+    render :text =&gt; "The time is #{Time.zone.now.to_s}"
+  end
+end</pre>
+<p>Now each time you reload the page you get the same time</p>
+<pre>The time is 2012-03-29 00:58:07 UTC</pre>
+<pre>The time is 2012-03-29 00:58:07 UTC</pre>
+<p>Without a reload the browser won't bother asking for the resource for another 5 minutes.  With the reload we get a 304 message.</p>
+<p>Normally a simple clear of your browser cache would get you a new time but Rack-Cache also cached this on the server.  So clear all you want, you'll not get an update until 5 minutes after the time in the window.   If there are 10 folks hitting this page they will all see the same time.   The 1st person to hit it after expiration will update the time.</p>
+<pre>The time is 2012-03-29 01:04:01 UTC</pre>
+<p>So where is the output cached?  By default Rails used the <a href="http://guides.rubyonrails.org/caching_with_rails.html#activesupport-cache-filestore">ActiveSupport::Cache::FileStore</a> which lives in tmp/cache -- configurable via config.cache_store.</p>
+<pre>ls -tr tmp/cache/
+ assets    B15    2A5    A92    B2C    B31
+ # B31 is newest dir
+ find tmp/cache/B31
+ tmp/cache/B31
+ tmp/cache/B31/A20
+ tmp/cache/B31/A20/1c4fa8db52f778f10f535fe2253f3a63f92fd87b</pre>
+<p>The cached response is in</p>
+<p>tmp/cache/B31/A20/1c4fa8db52f778f10f535fe2253f3a63f92fd87b</p>
+<pre>cat tmp/cache/B31/A20/1c4fa8db52f778f10f535fe2253f3a63f92fd87b
+ o: ActiveSupport::Cache::Entry    :@compressedF:@expires_in0:@created_atf1332983041.303097:
+ @value[I"(The time is 2012-03-29 01:04:01 UTC:EF</pre>
+<p>This is a pretty powerful caching option that Rails developers should understand and use when appropriate.    In some cases, not knowing this feature was in place has broken applications. Maybe I'll edit the Rails Guide to include this information.</p>
+<p>I noticed that rack-cache was filling our apache error log with entries</p>
+<pre>cache: [GET /somepath] miss
+cache: [GET /anotherpath/logo?1333186605] fresh
+cache: [POST /yet/another/path] invalidate, pass</pre>
+<p>Turn off the verbose option by adding this to your production.rb</p>
+<pre>config.action_dispatch.rack_cache =  {:metastore=&gt;"rails:/", :entitystore=&gt;"rails:/", :verbose=&gt;false}</pre>
+<p>To disable rack-cache altogether just do this</p>
+<pre>config.action_dispatch.rack_cache =  nil</pre>
+<p>Some useful links</p>
+<ul>
+<li><a href="https://github.com/rails/rails/commit/254ab7d916e579b9300951f5f33d3c5d3ee755a2" target="_blank">First pass at Rack::Cache (github commit)</a></li>
+<li><a title="Rack-Cache with Memcached" href="https://devcenter.heroku.com/articles/rack-cache-memcached-static-assets-rails31" target="_blank">Rack-Cache with Memcached</a></li>
+</ul>

@@ -1,0 +1,70 @@
+---
+layout: page
+status: publish
+published: true
+title: Setting up DJBDNS on Linux
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 308
+wordpress_url: http://blog.tonycode.com/?page_id=308
+date: '2011-12-20 21:20:11 -0500'
+date_gmt: '2011-12-21 02:20:11 -0500'
+categories: []
+tags: []
+comments: []
+---
+<ul>
+<li>Main page
+<ul>
+<li><a title="http://cr.yp.to/djbdns.html" href="http://cr.yp.to/djbdns.html" rel="nofollow">http://cr.yp.to/djbdns.html</a></li>
+</ul>
+</li>
+<li>Install instructions are here
+<ul>
+<li><a title="http://cr.yp.to/djbdns/install.html" href="http://cr.yp.to/djbdns/install.html" rel="nofollow">http://cr.yp.to/djbdns/install.html</a></li>
+</ul>
+</li>
+<li>My corrections
+<ul>
+<li>avoid this error(/usr/bin/ld: errno: TLS definition in /lib64/libc.so.6 section .tbss mismatches non-TLS reference in envdir.o)</li>
+<li>When installing daemontools <a title="http://cr.yp.to/daemontools/install.html" href="http://cr.yp.to/daemontools/install.html" rel="nofollow">http://cr.yp.to/daemontools/install.html</a>
+<ul>
+<li>before running install edit this file</li>
+<li>vi src/conf-cc
+<ul>
+<li>add this to end of gcc line</li>
+<li>-include /usr/include/errno.h</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>When installing ucspi-tcp <a title="http://cr.yp.to/ucspi-tcp/install.html" href="http://cr.yp.to/ucspi-tcp/install.html" rel="nofollow">http://cr.yp.to/ucspi-tcp/install.html</a>
+<ul>
+<li>vi conf-cc</li>
+<li>add this to end of gcc line</li>
+<li>-include /usr/include/errno.h</li>
+</ul>
+</li>
+<li>The above linux bug fix is documented in the djbdns instructions but when following the installs sequentially you miss the note</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>How to run a DNS server notes
+<ul>
+<li><a title="http://cr.yp.to/djbdns/run-server.html" href="http://cr.yp.to/djbdns/run-server.html" rel="nofollow">http://cr.yp.to/djbdns/run-server.html</a></li>
+</ul>
+</li>
+</ul>
+<pre>4. On the second computer, as root, edit /service/tinydns/root/data to remind yourself that DNS data is replicated from the first computer to the second:
+
+     # Do not edit data on this computer! data.cdb is copied from 1.8.7.200.
+     # The following line protects data.cdb by stopping make.
+     9</pre>
+<p><strong>/service/tinydns/root/data</strong> does not exist until step 5. use /etc/tinydns/root/data</p>

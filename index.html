@@ -1,0 +1,38 @@
+---
+layout: default
+---
+
+{% for post in paginator.posts %}
+
+<article id="post-{{post.wordpress_id}}" class="post-{{post.wordpress_id}} post type-post status-publish format-standard hentry {{post.categories[0]}}">
+
+          <!-- post title -->
+          <h2 class="alert alert-success">
+            <a href="{{ post.url | prepend: site.baseurl }}"> {{ post.title }} </a>
+          </h2>
+          <!-- /post title -->
+
+          <!-- post details -->
+          <span class="date">{{ post.date | date: "%b %-d, %Y" }}</span>
+
+          <span class="author">Published by {{ post.author.display_name }}</span>
+          <!-- /post details -->
+          {{ post.content }}
+</article>
+{% endfor %}
+
+
+<!-- Pagination links -->
+<div class="pagination">
+  {% if paginator.previous_page %}
+    <a href="{{ paginator.previous_page_path }}" class="previous">Previous</a>
+  {% else %}
+    <span class="previous">Previous</span>
+  {% endif %}
+  <span class="page_number ">Page: {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  {% if paginator.next_page %}
+    <a href="{{ paginator.next_page_path }}" class="next">Next</a>
+  {% else %}
+    <span class="next ">Next</span>
+  {% endif %}
+</div>

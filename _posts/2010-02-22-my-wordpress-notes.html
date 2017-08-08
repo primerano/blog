@@ -1,0 +1,76 @@
+---
+layout: post
+status: publish
+published: true
+title: My Wordpress Notes
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 179
+wordpress_url: http://www.tonycode.com/blog/?p=179
+date: '2010-02-22 20:41:32 -0500'
+date_gmt: '2010-02-23 01:41:32 -0500'
+categories:
+- tech
+- wordpress
+tags:
+- wordpress
+comments:
+- id: 67996
+  author: Nic
+  author_email: nperez@chumbonus.com
+  author_url: http://www.chumbonus.com
+  date: '2010-02-23 21:13:50 -0500'
+  date_gmt: '2010-02-24 02:13:50 -0500'
+  content: "These wordpress plugins send us an email with the backup and can rsync.\r\n\r\nhttp://blog.chumbonus.com/blog-backup-strategy/"
+- id: 87901
+  author: Steve Robbins
+  author_email: backupsmart74@yahoo.com
+  author_url: ''
+  date: '2010-11-05 22:45:36 -0400'
+  date_gmt: '2010-11-06 03:45:36 -0400'
+  content: "In terms of wordpress plugins you could try WP-DB-Backup and WordPress
+    Backup (BTE) \n\nWhere was your old website hosted?If it is cpanel hosted then
+    I'm sure that there are better scripts or any website backup software out there
+    like backupsmart etc.\n\nsee what you will like"
+---
+<p>While I've been using Wordpress for my blog for over 5 years I dig into the internals so rarely that I often forget some of the cool things I've learned and done.   In addition to my blog I've used it more like a CMS system where there were only pages and no posts, in this case the site used a static front page.  I haven't written any themes from scratch but I'm pretty comfortable hacking other people's themes and adding new features.</p>
+<p>I should probably do this on my wiki but I'm going to try putting some useful notes here.</p>
+<h2>Viewing database queries</h2>
+<p>Recently I tried out a calendar plugin that allowed you to enter and display future events.  For some reason it only let you show events 99 days in the future. I hacked the code to let me use 3 digits and it took forever to load my events so I added the following to the bottom of my footer.php (before &lt;/body&gt;)</p>
+<pre>&lt;?php
+if (current_user_can('administrator')){
+ global $wpdb;
+ echo "&lt;pre&gt;";
+ print_r($wpdb-&gt;queries);
+ echo "&lt;/pre&gt;";
+}
+?&gt;</pre>
+<p>This dumps all database queries that are made to the bottom of the page.  Turned out that the plugin was querying the database once for each date in the future.  So when I set it to 200 it was making over 200 queries.  Rather than figure out why it was coded tis way I switched to using <a href="http://wordpress.org/extend/plugins/the-events-calendar/" target="_blank">The Events Calendar</a> Plugin.  It lets you specify if a post is an event and then you can add details.  It works well.</p>
+<h2>Header and Footer snippets</h2>
+<p>I had an application that I wanted to use the header and footer from a live wordpress blog.  Any time the blog header/footer was updated the application would update too.  The idea here is the wordpress and application maintain the same look and feel and  navigation.</p>
+<p>To do this I created a header.php and footer.php file in my wordpress root directory (where wp-config.php is).  The files started with</p>
+<pre>&lt;?php
+require('./wp-blog-header.php');
+?&gt;
+</pre>
+<p>And then I stole code from the theme header.php and footer.php files to build the code snippets needed for the header and footer for my application.  I then did server side pulls of these live files, cached them and displayed them as my application header and footer.</p>
+<p>I guess instead of copying the code I should try to factor out the common code between the theme files and these files so I don't repeat it.  Has anyone done this?  I haven't tried it yet.</p>
+<h2>No HTTPS?  Use OpenId</h2>
+<p>I hate sending passwords in the clear but often the cost of SSL is more than the cost of hosting your site so we just do without.  Personally I always link my openId to my main account and use that to sign in.  My assumption is this is much more secure than sending credentials in the clear.  I use the <a href="http://wordpress.org/extend/plugins/openid/" target="_blank">OpenID</a> plugin for this.  I'm happy that Google now has OpenId support via their profiles.</p>
+<h2>Caching</h2>
+<p><strong>DB Cache Reloaded or WP Super Cache?</strong></p>
+<p>I've used both although there are times when I think a database query is faster than building all these local files.  For low traffic sites does the cache help or hurt?  I don't have any stats here.  Just thinking out loud.  :-)</p>
+<h2><strong>Broken Link Checker</strong></h2>
+<p>Some sites have a lot of links.  This plugin lets you know when you're pointing to a dead end.  Very handy.  <a href="http://wordpress.org/extend/plugins/broken-link-checker/">http://wordpress.org/extend/plugins/broken-link-checker/</a></p>
+<h2>Akismet</h2>
+<p>Install this or spend all day deleting spam comments.</p>
+<h2>Backups</h2>
+<p>Moving my homeowners association web site from static files to wordpress allowed us to have multiple editors but it makes backing up the system much more difficult.  Before the site consisted of about 80 files.   Now there is a database and many more things can go wrong.   I had downloaded a wordpress backup plugin a few months ago but it wasn't ready for prime time.   At the moment my backup consists of daily mysqldumps via cron that reside with my wordpress installation.  I then rsync that to my local machine (the wordpress install with db backups).   It's not perfect but it works for now. I guess I could share these scripts in another post.</p>
+<h2>One more thing</h2>
+<p>I forgot what I was going to say,  maybe it will come to me later tonight.   This is why I should have done this on the wiki.  :-)  I hope someone finds this useful.</p>

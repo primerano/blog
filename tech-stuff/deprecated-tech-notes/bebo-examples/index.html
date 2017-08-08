@@ -1,0 +1,117 @@
+---
+layout: page
+status: publish
+published: true
+title: Bebo Examples
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 292
+wordpress_url: http://blog.tonycode.com/?page_id=292
+date: '2011-12-20 21:04:38 -0500'
+date_gmt: '2011-12-21 02:04:38 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h3>Display All My Friends</h3>
+<p>Simple PHP to display all your friends and links to their profiles. Note: if you are running your app as a iframe the sn:profile-pic tag will not work. You'll need to use the API to build the URL.</p>
+<pre>&lt;?php
+ require_once '../bebo-0.4.6.phplib';
+ $bebo = new Bebo("your key" , "your secret");
+ $friends =  $bebo-&gt;friends_get(); // get list of friends
+ foreach ($friends as $friend) {
+   print "&lt;a href=\"/Profile.jsp?MemberId=$friend\"&gt;&lt;sn:profile-pic uid=\"$friend\" size=\"n\" /&gt; &lt;/a&gt;";
+ }
+?&gt;</pre>
+<h3>Display All My Friends on my Profile</h3>
+<p>Same as last example but it calls profile_setFBML to put the markup on your profile page. This markup is ONLY updated when you visit the application page.</p>
+<pre>&lt;?php
+require_once '../bebo-0.4.6.phplib';
+  $bebo = new Bebo("your key" , "your secret");
+  $friends =  $bebo-&gt;friends_get(); // get list of friends
+  $markup = "";
+  foreach ($friends as $friend) {
+    $markup .= "&lt;a href=\"/Profile.jsp?MemberId=$friend\"&gt;&lt;sn:profile-pic uid=\"$friend\" size=\"n\" /&gt; &lt;/a&gt;";
+  }
+  // Print markup to application screen
+  print $markup;
+  // Put markup on the profile
+  $result = $bebo-&gt;profile_setFBML($markup, $bebo-&gt;get_loggedin_user());
+  if ($result == "1") {
+    print("&lt;h2&gt;The following friends have been added to your profile&lt;/h2&gt;" . $photos);
+    // Print markup to application screen
+    print $markup;
+
+  } else {
+    print("&lt;h2&gt;An Error has occurred&lt;/h2&gt;");
+    var_dump($result);
+
+  }
+?&gt;</pre>
+<h3>Set a handle on a user's profile</h3>
+<p>This code puts the text "Dynamic Stuff =&gt;" on a user's profile and when their handle is updated there will be new content after "Dynamic Stuff =&gt;" string.</p>
+<pre>&lt;?php
+  require_once '../bebo-0.4.6.phplib';
+  $bebo = new Bebo("your key" , "your secret");
+  $handle = $bebo-&gt;get_loggedin_user();  //Unique handle per user
+  $markup = "Dynamic Stuff =&gt; &lt;sn:ref handle=\"" . $handle . "\"&gt; &lt;/sn:ref&gt;";
+  // Put markup (just handle reference) on the profile
+  $result = $bebo-&gt;profile_setFBML($markup, $bebo-&gt;get_loggedin_user());
+  if ($result == "1") {
+    print("Added handle to profile.");
+  } else {
+    print("&lt;h2&gt;An Error has occurred&lt;/h2&gt;");
+    var_dump($result);
+  } 
+?&gt;</pre>
+<h3>Update a handle on a user's profile</h3>
+<p>Create a new php file called update.php and place it in the same directory as your application index.php file. This file, when called via the Bebo proxy/application page will place the current time on the user's profile.</p>
+<p>Example call.</p>
+<ul>
+<li><a title="http://apps.bebo.com/sample/refresh.php" href="http://apps.bebo.com/sample/refresh.php" rel="nofollow">http://apps.bebo.com/sample/refresh.php</a></li>
+</ul>
+<pre>&lt;?php
+  require_once '../bebo-0.4.6.phplib';
+  $bebo = new Bebo("your key" , "your secret");
+
+  $handle = $bebo-&gt;get_loggedin_user();  // use user's handle unless otherwise specified.
+  if (array_key_exists('handle', $_REQUEST)) {
+    if ( count($_REQUEST['handle'])&gt;0) {
+      $handle = $_REQUEST['handle'];
+    }
+  }
+  // pretend we just pulled their feeds or something interesting
+  $result = $bebo-&gt;api_client-&gt;fbml_setRefHandle($handle, "&lt;h2&gt;last updated at ". strftime('%c') ."&lt;/h2&gt;");
+
+  if ($result == "1") {
+    print("Updated handle with ID of $handle");
+  } else {
+    print("&lt;h2&gt;An Error has occurred&lt;/h2&gt;");
+    var_dump($result);
+  }
+?&gt;</pre>
+<h3>Set a handle on a user's profile and use hidden image for update</h3>
+<p>This code puts the text "Dynamic Stuff =&gt;" on a user's profile and when their handle is updated there will be new content after "Dynamic Stuff =&gt;" string. We added an image tag that will force a refresh anytime the user views their profile. Unfortunately, it will only show the update after a refresh. If another user of the application views this person's page it will also refresh the content as all that is needed is a valid application user session for this code to fire.</p>
+<pre>&lt;?php
+  require_once '../bebo-0.4.6.phplib';
+  $bebo = new Bebo("your key" , "your secret");
+  $handle = $bebo-&gt;get_loggedin_user();  //Unique handle per user
+  $markup = "Dynamic Stuff =&gt; &lt;sn:ref handle=\"" . $handle . "\"&gt; &lt;/sn:ref&gt;";
+  // Add the hidden image hack
+  $markup .= "&lt;img style=\"display:none\" src=\"http://apps.bebo.com/sample/refresh.php?handle=$handle\" /&gt; ";
+
+  // Put markup (just handle reference) on the profile
+  $result = $bebo-&gt;profile_setFBML($markup, $bebo-&gt;get_loggedin_user());
+  if ($result == "1") {
+    print("Added handle to profile.");
+  } else {
+    print("&lt;h2&gt;An Error has occurred&lt;/h2&gt;");
+    var_dump($result);
+  }
+?&gt;</pre>

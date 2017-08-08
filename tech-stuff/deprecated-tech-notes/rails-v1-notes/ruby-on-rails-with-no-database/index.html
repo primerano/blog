@@ -1,0 +1,64 @@
+---
+layout: page
+status: publish
+published: true
+title: Ruby on Rails With No Database
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 378
+wordpress_url: http://blog.tonycode.com/?page_id=378
+date: '2011-12-21 20:42:43 -0500'
+date_gmt: '2011-12-22 01:42:43 -0500'
+categories: []
+tags: []
+comments: []
+---
+<p><a title="http://www.pragprog.com/titles/fr rr" href="http://www.pragprog.com/titles/fr_rr" rel="nofollow">Rails Recipes</a> has a recipe for running your rails application without a database. I was building a rails app that consumed a web service so this recipe was perfect for what I was doing. I had to make a few tweaks for it to work so I figured I would document them here.</p>
+<p>Rather than repeat my application here I'm just going to build a simple proxy in rails.</p>
+<p>Lets build a simple rails app and add a controller.</p>
+<ul>
+<li>rails nodb</li>
+<li>script/generate controller proxy</li>
+<li>edit app/controllers/proxy_controller.rb</li>
+</ul>
+<pre>class ProxyController &lt; ApplicationController
+  def get
+    url = URI.parse(params["url"])
+    result = Net::HTTP.get_response(url)
+        #render error if result. ...
+        render :text =&gt; result.body
+  end
+end</pre>
+<ul>
+<li>start your server and verify it works
+<ul>
+<li><a title="http://" href="http:///" rel="nofollow">http://</a>&lt;host&gt;:&lt;port&gt;/proxy/get?url=<a title="http://tonycode.com/" href="http://tonycode.com/" rel="nofollow">http://tonycode.com/</a></li>
+</ul>
+</li>
+</ul>
+<p>Now there is obviously no need for a database in this application but if we try to run tests we'll see how rails is hard wired to expect a database.</p>
+<p>run <strong>rake test</strong> and watch it fail.. unless of course you have a nodb_development database setup. Running rake with the -P shows that there is a db:test:prepare prerequisite task. Chads book goes into more details but the solution is as follows. remove the test_help require from test_helper.rb and steal the requires from test_help.rb (except the active record require). Buy Rails Recipies. it rocks.</p>
+<p>Code and Details are <a title="http://media.pragprog.com/titles/fr rr/NoDatabase.pdf" href="http://media.pragprog.com/titles/fr_rr/NoDatabase.pdf" rel="nofollow">here</a></p>
+<p>I kept the Test::Unit::TestCase class and just commented out these lines</p>
+<ul>
+<li># self.use_transactional_fixtures = true</li>
+<li># self.use_instantiated_fixtures = false</li>
+</ul>
+<p>I did this because I added helper methods later.</p>
+<p>The final item to make the rake task work is to create the following file lib/tasks/clear_database_prerequisites.rake</p>
+<p>Some of the symbols in the book did not work for me so I used the string literals (you can find them via <strong>rake -T</strong></p>
+<p>Here is what I ended up using</p>
+<pre>["test:units", "test:functionals", "test:integration", :recent].each do |name|
+    Rake::Task[name].prerequisites.clear
+end</pre>
+<p>In addition to not needed a database my application had no need for sessions either. So rather than deal with cookie passing and session cleanup I edited my application.rb file to turn off session.</p>
+<pre># session :session_key =&gt; '_nodb_session_id'
+session :off</pre>
+<p>Now that we have a database and session free application how exactly do we test it? Some of the testing power of rails is lost when you are talking to a service but I'll walk you through how I tested my database less models next</p>
+<p><a title="Testing Ruby on Rails Models with no Database Mapping" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/rails-v1-notes/testing-ruby-on-rails-models-with-no-database-mapping">Testing Ruby on Rails Models with no Database Mapping</a></p>

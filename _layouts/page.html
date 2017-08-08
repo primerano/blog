@@ -1,0 +1,14 @@
+---
+layout: default
+---
+<h1 class="alert alert-success">{{ page.title }}</h1>
+<article id="post-{{page.wordpress_id}}" class="post-{{page.wordpress_id}} post type-post status-publish format-standard hentry {{page.categories[0]}}">
+
+
+          <!-- post details -->
+          <span class="date">{{ page.date | date: "%b %-d, %Y" }}</span>
+
+          <span class="author">Published by {{ page.author.display_name }}</span>
+          <!-- /post details -->
+          {{ page.content }}
+</article>

@@ -1,0 +1,71 @@
+---
+layout: page
+status: publish
+published: true
+title: First Data Ruby on Rails GEM
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 310
+wordpress_url: http://blog.tonycode.com/?page_id=310
+date: '2011-12-20 21:21:09 -0500'
+date_gmt: '2011-12-21 02:21:09 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h1></h1>
+<p>The First Data API page does not provide an API for Ruby but there is a gem called activemerchant that supports First Data/Linkpoint. Their documentation does not mention First Data but I eventually realized that Linkpoint is the same thing.  :-)</p>
+<p>Free Resources</p>
+<ul>
+<li><a title="http://railscasts.com/episodes/144-active-merchant-basics" href="http://railscasts.com/episodes/144-active-merchant-basics" rel="nofollow">http://railscasts.com/episodes/144-active-merchant-basics</a></li>
+<li><a title="http://railscasts.com/episodes/145-integrating-active-merchant" href="http://railscasts.com/episodes/145-integrating-active-merchant" rel="nofollow">http://railscasts.com/episodes/145-integrating-active-merchant</a></li>
+<li><a title="http://www.activemerchant.org/" href="http://www.activemerchant.org/" rel="nofollow">http://www.activemerchant.org/</a></li>
+</ul>
+<p>Random notes</p>
+<ul>
+<li>sudo gem install activemerchant</li>
+</ul>
+<p>purchase authorized and executed in 1 ste[</p>
+<ul>
+<li>response = gateway,purchase(1000, credit_card)</li>
+</ul>
+<p>If shipping and want to charge later do</p>
+<ul>
+<li>authorize
+<ul>
+<li>response = gateway,authorize(1000, credit_card)</li>
+</ul>
+</li>
+<li>charge
+<ul>
+<li>gateway.capture(1000, response.authorization)</li>
+</ul>
+</li>
+</ul>
+<p>See also gateway.credit and gateway.void</p>
+<h2>FirstData/Linkpoint specifics</h2>
+<p>You need to setup a test account with FirstData</p>
+<ul>
+<li><a title="http://www.firstdata.com/product solutions/ecommerce/global gateway/virtual terminal.htm" href="http://www.firstdata.com/product_solutions/ecommerce/global_gateway/virtual_terminal.htm" rel="nofollow">http://www.firstdata.com/product_solutions/ecommerce/global_gateway/virtual_terminal.htm</a>
+<ul>
+<li>select setup test account</li>
+</ul>
+</li>
+<li>login to your account and select support -&gt; download center</li>
+<li>get your pem file</li>
+<li>under admin -&gt; fraud setting -&gt; set duplicate timeout to 0 so your tests work</li>
+</ul>
+<p>development.rb snippet</p>
+<pre>config.after_initialize do
+  ActiveMerchant::Billing::LinkpointGateway.pem_file  = File.read(File.dirname(__FILE__) + '/mycert.pem')
+  ActiveMerchant::Billing::Base.mode = :test
+  ::GATEWAY = ActiveMerchant::Billing::LinkpointGateway.new(
+    :login =&gt; "YOUR STORE NAME"  
+  )
+end</pre>

@@ -1,0 +1,34 @@
+---
+layout: page
+status: publish
+published: true
+title: HTTP Notes
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 285
+wordpress_url: http://blog.tonycode.com/?page_id=285
+date: '2011-12-20 20:59:13 -0500'
+date_gmt: '2011-12-21 01:59:13 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h1>HTTP Notes</h1>
+<p>Random things I'm likely to forget<br />
+!! Akamai</p>
+<p>!!! downstream-ttl Default setup ignores cache-control max-age and will return the time left before the object is set to expire from its cache. So if you have an object cached for a year and users are hitting it on day 364 they will only have it cached for a day before they need to refetch it.</p>
+<p>There are 2 ways to change this if it is not your desired behavior.</p>
+<ol>
+<li>Send Edge-Control an edge control header with the same expire time as your max-age. ex. Edge-Control "downstream-ttl=86400"</li>
+<li>Reconfigure your Akamai instance to honor the max-age.</li>
+</ol>
+<p>!!! serving 304 instead of a file In some configurations if you change the cache time on a source object but do not change the object, Akamai will return 304s instead of the object. This is really bad if the requester doesn't actually have the object. The fix is to touch the files so akamai will reload them. Apparently this is changing in future releases/configurations.</p>
+<p>!! Making HTTP requests via telnet</p>
+<p>This Deserves its own page</p>
+<p><a title="Making HTTP requests via telnet" href="http://blog.tonycode.com/tech-stuff/making-http-requests-via-telnet">Making HTTP requests via telnet</a></p>

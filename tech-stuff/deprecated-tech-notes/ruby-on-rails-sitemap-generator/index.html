@@ -1,0 +1,74 @@
+---
+layout: page
+status: publish
+published: true
+title: Ruby on Rails Sitemap Generator
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 304
+wordpress_url: http://blog.tonycode.com/?page_id=304
+date: '2011-12-20 21:17:23 -0500'
+date_gmt: '2011-12-21 02:17:23 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h3>How to build a sitemap for your rails app.</h3>
+<p>This wiki entry was the basis for my sitemap recipe in <a title="http://www.pragprog.com/titles/fr arr/advanced-rails-recipes" href="http://www.pragprog.com/titles/fr_arr/advanced-rails-recipes" rel="nofollow">Advanced Rails Recipies</a></p>
+<p>Related blog posts</p>
+<ul>
+<li><a title="http://www.tonycode.com/blog/archives/68" href="http://www.tonycode.com/blog/archives/68" rel="nofollow">http://www.tonycode.com/blog/archives/68</a></li>
+<li><a title="http://www.tonycode.com/blog/archives/72" href="http://www.tonycode.com/blog/archives/72" rel="nofollow">http://www.tonycode.com/blog/archives/72</a></li>
+</ul>
+<p>The following example will build a sitemap for a single model but it can easily be extended.</p>
+<p>&nbsp;</p>
+<ul>
+<li>Build a controller for your sitemap
+<ul>
+<li>script/generate controller sitemap</li>
+</ul>
+</li>
+<li>query model for information that you want in the sitemap</li>
+</ul>
+<pre>class SitemapController &lt; ApplicationController
+  def sitemap
+    @entries = YourModel.find(:all, :order =&gt; "updated_at DESC", :limit =&gt; 50000)
+    headers["Content-Type"] = "text/xml"
+    # set last modified header to the date of the latest entry.
+    headers["Last-Modified"] = @entries[0].updated_at.httpdate    
+  end
+end</pre>
+<ul>
+<li>Create your sitemap.rxml file</li>
+</ul>
+<pre>xml.instruct!
+xml.urlset "xmlns" =&gt; "http://www.sitemaps.org/schemas/sitemap/0.9" do
+  @entries.each do |entry|
+    xml.url do
+      xml.loc url_for(:controller =&gt; 'controller you use to show the model', 
+                      :action =&gt; 'show', 
+                      :id =&gt; entry.id,
+                      :only_path =&gt; false)
+      xml.lastmod entry.updated_at.to_date
+    end
+  end
+end</pre>
+<dl>
+<dd>only_path =&gt; false is necessary as sitemaps are required to have protocol and domain.</dd>
+</dl>
+<p>&nbsp;</p>
+<ul>
+<li>Update your routes file to allow your sitemap to live in the root directory
+<ul>
+<li>ex: map.connect 'sitemap.xml', :controller =&gt; "sitemap", :action =&gt; "sitemap"</li>
+</ul>
+</li>
+</ul>
+<h3>using a sitemap index</h3>
+<p>If you have over 50000 URLs you need to use a sitemap index file. I'll put an example here eventually.  ;-)</p>

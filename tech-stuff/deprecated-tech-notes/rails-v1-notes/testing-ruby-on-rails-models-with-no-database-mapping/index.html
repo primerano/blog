@@ -1,0 +1,58 @@
+---
+layout: page
+status: publish
+published: true
+title: Testing Ruby on Rails Models with no Database Mapping
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 380
+wordpress_url: http://blog.tonycode.com/?page_id=380
+date: '2011-12-21 20:43:29 -0500'
+date_gmt: '2011-12-22 01:43:29 -0500'
+categories: []
+tags: []
+comments: []
+---
+<p>I recently built a rails application that only talked to a web service. This called for some slight changes in the way I needed to run my unit tests.</p>
+<p>For my tests I took some real responses from the web service I was consuming and saved them into xml file that my unit tests would then open an process. This allowed me to get complete code coverage on my models which came in handy as I moved from REXML to Hpricot to libxml.</p>
+<p>Here is the approach I took.</p>
+<p>I created models for pieces of the xml responses. For example. When I was retrieving a list of posts there was a rating on each post so I created a rating class (app/models/rating.rb). Note it does NOT inherit from ActiveRecord since there is no database to map to.</p>
+<pre>class Rating
+    def initialize  (rating)
+      @score = rating.find("score")[0].child.content
+      @sample = rating.find("sample")[0].child.content
+      @percent = rating.find("percent")[0].child.content
+    end
+
+    def get_score
+      return @score
+    end
+
+    def get_sample
+      return @sample
+    end
+
+    def get_percent
+      return @percent
+    end
+end</pre>
+<p>I then had an article class that used the rating class among others.</p>
+<p>So now to test this class.</p>
+<p>1st I saved several sample XML responses to test/sample_responses/</p>
+<p>Then I added a helper to test/test_helper.rb</p>
+<pre>  # Add more helper methods to be used by all tests here...
+  def get__data(fn)
+    IO.read RAILS_ROOT + "/test/sample_responses/#{fn}"
+  end</pre>
+<p>I then used this helper in my test/unit/boards_test.rb file</p>
+<pre>      r = Response.new(get_sample_data("threaded_list.xml"))
+      assert_equal "2", r.get_articles()[0].get_rating().get_score
+      assert_equal "5", r.get_articles()[0].get_rating().get_sample
+      assert_equal "0.4", r.get_articles()[0].get_rating().get_percent</pre>
+<p>response.rb parses the passed xml and instantiates the article class among others. Normally it is getting its data from an http request but to allow for thougough and consistent testing of my models I used files from disk.</p>

@@ -1,0 +1,79 @@
+---
+layout: post
+status: publish
+published: true
+title: Ruby on Rails SEO tips
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 68
+wordpress_url: http://www.tonycode.com/blog/archives/68
+date: '2008-01-10 18:45:58 -0500'
+date_gmt: '2008-01-10 23:45:58 -0500'
+categories:
+- tech
+tags:
+- code
+comments:
+- id: 5645
+  author: Nikki
+  author_email: nikki.lee0@yahoo.com
+  author_url: http://www.kongpro.com
+  date: '2008-01-17 15:27:00 -0500'
+  date_gmt: '2008-01-17 20:27:00 -0500'
+  content: "Hi Tony!\r\n\r\nHonestly, I'm not quite familiar with this, however, I
+    would like to learn more on how this works. Hope you would be able to provide
+    examples. Thanks!\r\n\r\nNikki."
+- id: 174640
+  author: Krissy Wojtas
+  author_email: Alisa_Cinotti@hotmail.com
+  author_url: ''
+  date: '2012-12-19 09:49:23 -0500'
+  date_gmt: '2012-12-19 14:49:23 -0500'
+  content: Google+ button much important for getting valuable Google authorship but
+    quality content important.
+---
+<p>Recently I implemented a <a title="Ruby on Rails Sitemap Generator" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/ruby-on-rails-sitemap-generator">Rails application sitemap</a> but once the search engines started hitting my site, I realized that I wasn't giving them all the information they desired.</p>
+<ul>
+<li>Yahoo was doing simple HTTP head requests on my sitemap and going away</li>
+<ul>
+<li>206.190.57.45 - - [11/Dec/2007:08:35:49 -0800] "HEAD /sitemap.xml HTTP/1.0" 200 334 "-" "Yahoo! Slurp/Site Explorer"</li>
+</ul>
+<li>Google read my sitemap infrequently but loved to do HEAD requests on my index page</li>
+<ul>
+<li>66.249.70.196 - - [17/Dec/2007:07:11:24 -0800] "HEAD / HTTP/1.1" 200 372 "-" "Mozilla/5.0 (compatible; Googlebot/2.1; +<a class="external free" title="http://www.google.com/bot.html" href="http://www.google.com/bot.html">http://www.google.com/bot.html</a>)"</li>
+</ul>
+</ul>
+<p>For those of you unfamiliar with HEAD requests, they are requests for a page that don't actually return the page. Just information like size and date. Its a nice way for search engines and caches to decide if there are any changes they need to pull. For some examples of HTTP requests check out the wiki page I wrote on <a title="Making HTTP requests via telnet" href="http://blog.tonycode.com/tech-stuff/making-http-requests-via-telnet" target="_blank">making HTTP requests via telnet</a>.</p>
+<p>Now what do you think Google and Yahoo were looking for? My assumption is they are looking for the Last-Modified header in the response to see if they should bother requesting the sitemap. They could compare the size of the response since they last visited but I doubt they want track this information.</p>
+<p>The Last-Modified date is the ideal field to check.</p>
+<p>This is all fine and good but guess what. Rails doesn't set that header for you.</p>
+<pre>telnet ficlets.com 80
+Trying 64.12.150.213...
+Connected to www.ficlets.com.
+Escape character is '^]'.
+HEAD / HTTP/1.0
+Host: www.ficlets.com
+
+HTTP/1.1 200 OK
+Date: Wed, 09 Jan 2008 20:22:31 GMT
+Server: Mongrel 1.0.1
+Status: 200 OK
+Cache-Control: no-cache
+Content-Type: text/html; charset=utf-8
+Content-Length: 16355
+Set-Cookie: _session_id=s322clipped; path=/
+Vary: Accept-Encoding
+Connection: close</pre>
+<p>The good news is this is easy to add! If you look at my <a title="Ruby on Rails Sitemap Generator" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/ruby-on-rails-sitemap-generator" target="_blank">wiki example</a> you'll see that I set the header with the time of the latest entry in the sitemap.</p>
+<p><em> headers["Last-Modified"] = @entries[0].updated_at.httpdate</em></p>
+<p>Now it isn't rails job to add this header for you but it would be nice if the scaffolding added this header. The standard show/1 actions are pulling a record from a database and the action knows the updated_at value.</p>
+<p>I have added this header to my show actions as I am just pulling a record from a database and I have the modified time!</p>
+<p><em>headers["Last-Modified"] = @business.updated_at.httpdate</em></p>
+<h4></h4>
+<p>That's all. I'm looking forward to any comments and suggestions people may have.</p>

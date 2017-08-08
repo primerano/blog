@@ -1,0 +1,74 @@
+---
+layout: page
+status: publish
+published: true
+title: Dumping HTTP Headers
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 262
+wordpress_url: http://blog.tonycode.com/?page_id=262
+date: '2011-12-09 21:04:29 -0500'
+date_gmt: '2011-12-10 02:04:29 -0500'
+categories: []
+tags: []
+comments: []
+---
+<p>How to display HTTP headers from server pages. AOL Server, Java Server Pages, Ruby on Rails, PHP, etc.</p>
+<h2>XSS Security Note</h2>
+<p>It was brought to my attention that by linking to these scripts from a page with script tags in the url, you could do some XSS.</p>
+<p>ex: <a title="http://someserver/referrertest/dump.php" href="http://someserver/referrertest/dump.php" rel="nofollow">http://someserver/referrertest/dump.php</a>?&lt;script&gt;alert(document.cookie);&lt;/script&gt;" From this page link to the dump headers page. When you click the link this referrertest/dump.php url is sent as the referer.</p>
+<p>Firefox will correctly encode the URL but IE passes it "as is" in the referer header. So when I display the referer header I execute the script.</p>
+<p>This is easy enough to fix in the examples below by escaping the header name and value. (If you are using Rails3 it will automatically be escaped).</p>
+<p>And yes, I know I misspelled referrer. The HTTP spec had the misspelling so it lives to this day.  :-)</p>
+<p><a name="Ruby_on_Rails_rhtml_code_to_dump_HTTP_headers."></a></p>
+<h2>Ruby on Rails rhtml code to dump HTTP headers.</h2>
+<p>The request.env has the HTTP headers prefixed with HTTP_. It also has other environment variables. This code pulls just the items starting with HTTP_ and then strips the HTTP_ portion for easy reading.</p>
+<pre>&lt;table border="1"&gt;
+&lt;% for header in request.env.select {|k,v| k.match("^HTTP.*")} %&gt;
+  &lt;tr&gt;
+    &lt;td&gt;&lt;%=header[0].split('_',2)[1]%&gt;&lt;/td&gt;&lt;td&gt;&lt;%=header[1]%&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;% end %&gt;
+&lt;/table&gt;</pre>
+<p><a name="AOL_Server_adp_code_to_dump_HTTP_headers."></a></p>
+<h2>AOL Server adp code to dump HTTP headers.</h2>
+<pre>&lt;%
+for { set i 0 } { $i &lt; [ns_set size [ns_conn headers]] } { incr i } {
+    ns_puts "[ns_set key [ns_conn headers] $i]: [ns_set \
+                value [ns_conn headers] $i]"
+}
+%&gt;</pre>
+<p><a name="PHP_code_to_dump_HTTP_Headers"></a></p>
+<h2>PHP code to dump HTTP Headers</h2>
+<p>I think the quality/implementation of this code varies depending on how you are running php.</p>
+<p>My site uses cgi and I use this</p>
+<pre> &lt;?php
+   foreach($_SERVER as $h=&gt;$v)
+     if(ereg('HTTP_(.+)',$h,$hp))
+       echo "&lt;li&gt;$h = $v&lt;/li&gt;\n";
+   header('Content-type: text/html');
+  ?&gt;</pre>
+<p><a title="http://www.tonycode.com/tools/showHTTPHeaders.php" href="http://www.tonycode.com/tools/showHTTPHeaders.php" rel="nofollow">http://www.tonycode.com/tools/showHTTPHeaders.php</a></p>
+<p>XSS Change:</p>
+<pre>   echo "&lt;li&gt;" . htmlspecialchars("$h = $v") . " &lt;/li&gt;\n";</pre>
+<p><a name="JSP.2FJava_code_to_dump_HTTP_Headers"></a></p>
+<h2>JSP/Java code to dump HTTP Headers</h2>
+<pre> &lt;%
+
+ out.println("&lt;ul&gt;");
+
+ java.util.Enumeration names = request.getHeaderNames();
+ while (names.hasMoreElements()) {
+   String name = (String) names.nextElement();
+   String value = request.getHeader(name);
+   out.println(" &lt;li&gt;     &lt;b&gt;" + name + "=&lt;/b&gt;" + value +"&lt;/li&gt;");
+ }
+ out.println("&lt;/ul&gt;");
+
+ %&gt;</pre>

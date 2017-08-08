@@ -1,0 +1,112 @@
+---
+layout: page
+status: publish
+published: true
+title: AC-211-SR configuration for ViaTalk
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 306
+wordpress_url: http://blog.tonycode.com/?page_id=306
+date: '2011-12-20 21:19:12 -0500'
+date_gmt: '2011-12-21 02:19:12 -0500'
+categories: []
+tags: []
+comments: []
+---
+<h1></h1>
+<p>Here are the AC-211-SR/AC211SR Config items mentioned in on <a title="http://www.tonycode.com/blog/archives/34" href="http://www.tonycode.com/blog/archives/34" rel="nofollow">my blog</a></p>
+<p>&nbsp;</p>
+<h3>Get your ViaTalk Credentials</h3>
+<ul>
+<li>Log into the ViaTalk Control Panel
+<ul>
+<li><a title="https://support.viatalk.com/billing/user.php" href="https://support.viatalk.com/billing/user.php" rel="nofollow">https://support.viatalk.com/billing/user.php</a></li>
+</ul>
+</li>
+<li>Goto the softphone config (at the bottom)
+<ul>
+<li><a title="https://support.viatalk.com/billing/user.php?op=menu&amp;tile=softphoneconfig" href="https://support.viatalk.com/billing/user.php?op=menu&amp;tile=softphoneconfig" rel="nofollow">https://support.viatalk.com/billing/user.php?op=menu&amp;tile=softphoneconfig</a></li>
+</ul>
+</li>
+<li>Get the generic configuration
+<ul>
+<li>Note your username, password and select one of the servers mentioned. Pick a server that is geographically close to you. You will need this information later.</li>
+</ul>
+</li>
+</ul>
+<h3>Break into the Gizmo</h3>
+<p>Check this <a title="http://gizmopasswords.blogspot.com/2007/07/another-possible-ac-211-admin-password.html" href="http://gizmopasswords.blogspot.com/2007/07/another-possible-ac-211-admin-password.html" rel="nofollow">page</a> for information on getting into the Gizmo as Admin. Logging in with password of welcome will not give you admin settings.</p>
+<p>&nbsp;</p>
+<h3>Configure the Gizmo</h3>
+<ul>
+<li>Goto <a title="http://192.168.251.1/" href="http://192.168.251.1/" rel="nofollow">http://192.168.251.1/</a> and login with admin password.</li>
+<li>Goto WAN in the gizmo settings and turn off auto-configuration. If you don't it will keep getting overwritten with sunrocket settings</li>
+<li>Under LAN I added some additional port forwarding settings. <strong>I am not sure these are necessary</strong></li>
+</ul>
+<p><a title="http://portforward.com/english/route...SR/Viatalk.htm" href="http://portforward.com/english/route...SR/Viatalk.htm" rel="nofollow">http://portforward.com/english/route...SR/Viatalk.htm</a></p>
+<ul>
+<li>Under SIP
+<ul>
+<li>Primary and Secondary server port is 5060</li>
+<li>Domain name is vtnoc.net</li>
+<li>The IP address can be the domain name viatalk sent you. ex newyork-1.vtnoc.net pick another local server as a secondary
+<ul>
+<li>Here are a few servers (you can use the IP or the name) Using IP address will ensure it works if there are DNS issues but using the name will ensure it works if the IP address changes.
+<ul>
+<li>For newyork-1.vtnoc.net IP address is 216.246.50.94</li>
+<li>For newyork-2.vtnoc.net IP address is 64.118.82.164</li>
+<li>For richmond-1.vtnoc.net IP address is 216.246.88.122</li>
+<li>For chicago-1.vtnoc.net IP address is 216.246.50.94</li>
+<li>For sanfrancisco-1.vtnoc.net IP address is 216.246.105.146</li>
+<li>For houston-1.vtnoc.net IP address is 209.85.6.12</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Send Registration Request is checked</li>
+<li>Dial plan is (&gt;#|911|611|411|311|00|0T|[2-9]xxxxxxxxx|1[2-9]xxxxxxxxx|[2-9]xxxxxxT|011[2-9]x.T|*x.T)
+<ul>
+<li>DO not use the Dial plan mentioned on the viatalk forums. I could not dial out with <a title="http://support.viatalk.com/index.php? a=knowledgebase&amp; j=questiondetails&amp; i=124" href="http://support.viatalk.com/index.php?_a=knowledgebase&amp;_j=questiondetails&amp;_i=124" rel="nofollow">this one</a></li>
+</ul>
+</li>
+<li>Transport is UDP</li>
+<li>I checked Enable T.38 fax support but my fax machine will not work.  :-(</li>
+<li>For Line 1
+<ul>
+<li>User / Phone NuCm = my number starting with 1 then area code</li>
+<li>CallerID Name = My name</li>
+<li>Port is 5060</li>
+<li>AEC On</li>
+<li>Authentication User Name my: number starting with 1 then area code</li>
+<li>Password is the mailed password</li>
+</ul>
+</li>
+<li>Save</li>
+</ul>
+</li>
+<li>SIP-&gt; Line1 (tab under SIP)
+<ul>
+<li>Change "Send out of band telephone events" to <a title="http://www.ietf.org/rfc/rfc2833.txt" href="http://www.ietf.org/rfc/rfc2833.txt">RFC 2833</a>.</li>
+<li>Payload value is 101.</li>
+<li>Save</li>
+</ul>
+</li>
+<li>SIP-&gt; Line2 (tab under SIP) Repeat line 1 directions</li>
+<li>CODECS menu.
+<ul>
+<li>For both lines, use G711U.</li>
+<li>Save</li>
+</ul>
+</li>
+<li>Reset the router</li>
+<li>Wait for the voice light.</li>
+</ul>
+<p>Good luck. I'll add more notes as I learn more.</p>
+<h3>Random Notes</h3>
+<p>You probably should change the gizmo password to something you will remember. Click Security while on <a title="http://192.168.251.1/" href="http://192.168.251.1/" rel="nofollow">http://192.168.251.1/</a></p>

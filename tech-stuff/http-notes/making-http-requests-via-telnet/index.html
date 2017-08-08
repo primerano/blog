@@ -1,0 +1,106 @@
+---
+layout: page
+status: publish
+published: true
+title: Making HTTP requests via telnet
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 287
+wordpress_url: http://blog.tonycode.com/?page_id=287
+date: '2011-12-20 21:00:44 -0500'
+date_gmt: '2011-12-21 02:00:44 -0500'
+categories: []
+tags: []
+comments:
+- id: 2316556
+  author: Bruce
+  author_email: donquixote2u@gmail.com
+  author_url: ''
+  date: '2015-07-03 19:25:16 -0400'
+  date_gmt: '2015-07-04 00:25:16 -0400'
+  content: good post - that telnet scripting worked for me where manual telnet failed.
+    dunno why, but I can proceed from here and experiment later!  ;-)
+---
+<h2>Simple telnet HTTP requests</h2>
+<p>Using Telnet is a great way to learn about HTTP requests.</p>
+<p>For example.. back in the 90s microsoft was running their sites on apache. Nowadays they are eating their own dog food.  ;-)</p>
+<p>Here is a simple HEAD request to microsoft.com via telnet.</p>
+<pre>$ telnet microsoft.com 80
+Trying 207.46.232.182...
+Connected to microsoft.com.
+Escape character is '^]'.
+HEAD / HTTP/1.0
+
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Date: Thu, 12 Jul 2007 15:25:37 GMT
+Server: Microsoft-IIS/6.0
+X-Powered-By: ASP.NET
+Location: http://www.microsoft.com
+Content-Length: 31
+Content-Type: text/html
+Set-Cookie: ASPSESSIONIDSCAQCSBR=FMPJMMPAMGNBFELIPABIHHMN; path=/
+Cache-control: private
+
+Connection closed by foreign host.</pre>
+<p>The command above was simple. <strong>HEAD / HTTP/1.0</strong> followed by 2 line feeds.</p>
+<p>The 80 specified in the telnet command is the port that you are hitting when you type <a title="http://microsoft.com/" href="http://microsoft.com/" rel="nofollow">http://microsoft.com/</a> in a browser. If another port is used you will see it after a colon. ex: <a title="http://tonycode.com:8080/" href="http://tonycode.com:8080/" rel="nofollow">http://tonycode.com:8080/</a> hits the server running on port 8080. If there was one. :-)</p>
+<p>When doing GET commands you usually end up sending headers with your command. You should always send the Host header (this isn't required for HTTP/1.0 but many servers are running multiple sites so you'll want to send this.)</p>
+<p>Here's an example of a GET against my home page.</p>
+<pre>$ telnet tonycode.com 80
+Trying 208.97.136.171...
+Connected to tonycode.com.
+Escape character is '^]'.
+GET / HTTP/1.1
+Host: tonycode.com
+
+HTTP/1.1 200 OK
+Date: Thu, 12 Jul 2007 16:10:02 GMT
+Server: Apache/1.3.37 (Unix) mod_throttle/3.1.2 DAV/1.0.3 mod_fastcgi/2.4.2 mod_gzip/1.3.26.1a PHP/4.4.7 mod_ssl/2.8.22 OpenSSL/0.9.7e
+MS-Author-Via: DAV
+Last-Modified: Wed, 11 Jul 2007 14:10:28 GMT
+ETag: "19cf7aa-68d-4694e4d4"
+Accept-Ranges: bytes
+Content-Length: 1677
+Content-Type: text/html
+
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD</pre>
+<p>I spared you the full contents of my home page. Why did it return the entire page? Because we did a GET instead of HEAD.</p>
+<p>Remembering all the headers you need can get tricky so I usually use [<a title="http://livehttpheaders.mozdev.org/" href="http://livehttpheaders.mozdev.org/" rel="nofollow">LiveHttpHeaders</a> to get what I need and then I can make modifications for testing or scripting purposes.</p>
+<p>&nbsp;</p>
+<h2>Scripting telnet HTTP requests</h2>
+<p>I recently needed to hit several production servers that lived behind a VIP. I had access to the servers directly but their behavior was controlled by the host that they were called with so if I used the machine name I was out of luck. Also, port numbers in the request would throw it off. So I needed to send http requests directly to the server and lie about the hostname I was using to access them.</p>
+<p>Here is a script file that I run and pipe into telnet.</p>
+<pre>echo "open $1 $2"
+sleep 2
+echo "GET $4 HTTP/1.0"
+echo "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.4) Gecko/20070515 Firefox/2.0.0.4"
+echo "Host: $3"
+echo
+echo
+sleep 2</pre>
+<p>lets put this in a file called getpage and then we run the following</p>
+<p>./getpage tonycode.com 80 tonycode.com /| telnet</p>
+<p>ok. what did we just do?</p>
+<ul>
+<li>getpage is sending commands on stdout and telnet is getting them via the pipe
+<ul>
+<li>getpage 1st tells telnet to open a connection to tonycode.com ($1) port 80 ($2).</li>
+<li>getpage waits 2 seconds for the connection. Adjust as necessary.</li>
+<li>getpage sends the request. GET / HTTP/1.0 and sets the host ($3) to tonycode.com.
+<ul>
+<li>Note $4 is the resource to fetch and we set it to /.</li>
+<li>I even threw in the user agent header for fun.</li>
+<li>Those 2 empty echo statements are necessary to tell the server this is the end of the request.</li>
+</ul>
+</li>
+<li>Finally getpage sleeps for 2 seconds to allow time for the response to come back. Leave out this line and you'll get nada.</li>
+</ul>
+</li>
+</ul>

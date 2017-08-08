@@ -1,0 +1,58 @@
+---
+layout: post
+status: publish
+published: true
+title: Building Bebo Apps.   Part 1
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 75
+wordpress_url: http://www.tonycode.com/blog/archives/75
+date: '2008-04-15 14:55:26 -0400'
+date_gmt: '2008-04-15 19:55:26 -0400'
+categories:
+- tech
+- bebo
+tags:
+- code
+comments: []
+---
+<p>Last week I spent some time learning how to build Bebo applications. Their API is just like the Facebook API but it is not complete and the documentation has some holes in it. If you haven't built a Facebook application the entire process can seem awkward.</p>
+<p>The <a href="http://developer.bebo.com/" target="_blank">Bebo Developer Page</a> makes it sound like a simple 3 step process</p>
+<ul>
+<li>Get the library</li>
+<li>Install the app</li>
+<li>Start Creating.</li>
+</ul>
+<p>If you don't know how to write web applications in PHP, Java or Ruby stop now. You need to know at least one of these systems to continue.</p>
+<p>I downloaded the PHP library and put it on my host. Next step was to install the developer application. Why? Why do I need to install an app to build apps? Seems weird at 1st but basically this application is used to manage the keys, locations and settings for your apps.</p>
+<p>Once you have the app <a href="http://apps.bebo.com/developerapp/" target="_blank">launch it</a> and click "Create new app" (way off on the right) . Give your application a name and a URL and a callback URL.</p>
+<p>What is the callback URL? It is the URL that is hit when a user goes to the Application URL. http://apps.bebo.com/yourappname is just a proxy that adds headers and parameters to the request before it hits your application file. The bebo library uses this information.</p>
+<p>For example. I created an app called sample with a URL of http://apps.bebo.com/sample. My callback URL is http://bebo.tonycode.com/apps/sample</p>
+<p>Hitting http://apps.bebo.com/sample results in a call to http://bebo.tonycode.com/apps/sample where I have the following index.php</p>
+<p><a title="Bebo Examples" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/bebo-examples" target="_blank">Display_All_My_Friends </a></p>
+<p>This application simply prints out all your friends.</p>
+<p>Add the application to your page by going to the developer application, viewing the app and clicking the profile page for the app. Now go to your profile page a voila.. the app is there but not your friends.</p>
+<p>Huh? How do I get the content to show up on my profile page? If I don't show it on the profile page it seems pretty pointless. right?</p>
+<p>To add content to the profile page you use profile_setFBML. Last I checked the return codes for this function are not defined. Seems to return a 1 when it works and an array when it fails. Nice. :-\</p>
+<p>Here is the code updated to put friends on profile too.</p>
+<p><a title="Bebo Examples" href="http://blog.tonycode.com/tech-stuff/deprecated-tech-notes/bebo-examples" target="_blank">Display_All_My_Friends_on_my_Profile</a></p>
+<p>Weeks go by and you add new friends to your profile and you notice that the list of friends in your custom application aren't changing. profile_setFBML is only called when you visit the application page. Well that stinks you say. How can I make it update each time I visit the profile? I'll get to that in my next post.</p>
+<p>Random Tips.</p>
+<ul>
+<li>Documentation is at http://developer.bebo.com/documentation.html</li>
+<li>The downloaded libraries have example code. Start there</li>
+<li>You may need to look at 2 different sections to piece together how a function works. For example user.getInfo has a fields parameter</li>
+<ul>
+<li>http://www.bebo.com/docs/api/UsersGetInfo.jsp</li>
+<li>Look at the SNQL users table to find what is available</li>
+<ul>
+<li>http://www.bebo.com/docs/snql/User.jsp</li>
+</ul>
+</ul>
+</ul>

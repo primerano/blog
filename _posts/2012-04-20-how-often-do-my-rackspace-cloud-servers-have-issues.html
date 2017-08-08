@@ -1,0 +1,46 @@
+---
+layout: post
+status: publish
+published: true
+title: How often do my Rackspace Cloud servers have issues?
+author:
+  display_name: Tony Primerano
+  login: admin
+  email: primerano@tonycode.com
+  url: http://openid.aol.com/tonyprimerano
+author_login: admin
+author_email: primerano@tonycode.com
+author_url: http://openid.aol.com/tonyprimerano
+wordpress_id: 436
+wordpress_url: http://blog.tonycode.com/?p=436
+date: '2012-04-20 17:09:00 -0400'
+date_gmt: '2012-04-20 22:09:00 -0400'
+categories:
+- Uncategorized
+tags: []
+comments:
+- id: 131261
+  author: DrDzoe
+  author_email: joe@dzikiewicz.com
+  author_url: http://drdzoe.com
+  date: '2012-04-22 07:41:22 -0400'
+  date_gmt: '2012-04-22 12:41:22 -0400'
+  content: "At Mixx, we used the Rackspace cloud.  We often had outages with the servers
+    - the numbers you report seem in line with what we saw.\r\n\r\nIn our case, we
+    only ran front-end servers on the Cloud hosts.  We used managed hosting for our
+    database and file servers.  Thus, the occasional outage of a cloud server was
+    not something we could live with.  But you're right - if the cloud hosts were
+    our only hosts, the up-times would not have been acceptable."
+- id: 131262
+  author: DrDzoe
+  author_email: joe@dzikiewicz.com
+  author_url: http://drdzoe.com
+  date: '2012-04-22 07:49:47 -0400'
+  date_gmt: '2012-04-22 12:49:47 -0400'
+  content: Oops - make that the occasional outage WAS something we could live with.
+---
+<p>I have about 6 cloud server instances running and they seem to have problems too often. But I never actually listed them out, so going back through my cloudkick and rackspace emails here's what I have for the past 6 months or so.</p>
+<p><iframe width='550' height='700' frameborder='0' src='https://docs.google.com/spreadsheet/pub?key=0AhfTKUaWkiIcdFRvWnNVVXhBQVV2dXNybWhudUJ1QlE&output=html&widget=true'></iframe></p>
+<p>I have emails going back through Fall of 2009.  There is rarely a month without an outage.  While most are short, this level of uptime is probably unacceptable to many businesses.   </p>
+<p>Oddly enough, my server with the highest level of traffic has not died yet.  I'm not sure if that is because it is on newer hardware or if something in the OpenStack system doesn't like my mostly idle boxes. </p>
+<p>One of the failures earlier this year left me with a corrupted filesystem.  While restoring from a backup is simple enough it took a little while to get my Master/Slave replication on Mysql working again.  (Slave was ahead of the master).    The rest of these issues took no work on my part other than pinging the RS team if they weren't already working on the issue. </p>
