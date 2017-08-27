@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Convert Human Time to UNIX Time.</title>
+ <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+<style type="text/css" media="screen">
+<!--
+#result {
+background-color:#FFA;
+} 
+-->
+</style>
+
+<script type="text/javascript">
+<!--
+function twodigits(d) {
+	if (d < 10)
+		return '0' + d;
+	return d;
+}
+ function displayTime()
+ {
+
+	var destination=document.getElementById("result");
+
+	var d = new Date(document.getElementById("year").value, 		
+					document.getElementById("month").value,
+					document.getElementById("day").value,
+					document.getElementById("hour").value,
+					document.getElementById("minute").value,
+					document.getElementById("second").value
+					);
+	var newText = document.createTextNode(d.getTime() + " == " + d.toString());
+
+	destination.appendChild(newText);
+	destination.appendChild(document.createElement("br"));
+ }
+
+function buildForm()
+{
+var d = new Date();
+var myForm =  "<form  action=\"/unixtimeisbroken\">";
+myForm += '<table><tr><td>Year</td><td>Month</td><td>Day</td><td>Hour</td><td>Min</td><td>Seconds</td><td></td></tr>';
+myForm += '<tr><td><input type="text" id="year" value="' + d.getFullYear() + '" size="4"/>';
+myForm += " / </td><td><select id=\"month\" name=\"Month\">";
+var tmp = d.getMonth()+1;
+for(var i=1; i<=12; i++){
+if (i == tmp)
+	myForm+='<option SELECTED="1" value="'+eval(i-1)+'">'+ twodigits(i) ;
+else
+	myForm+='<option value="'+eval(i-1)+'">'+ twodigits(i);
+}
+
+
+myForm += "</select> / </td><td><select id=\"day\" name=\"day\">";
+var tmp = d.getDate();
+for(var i=1; i<=31; i++){ 
+if (tmp == i)
+	myForm+='<option SELECTED="1" value="'+i+'">'+twodigits(i);
+else
+	myForm+='<option value="'+i+'">'+twodigits(i);
+}
+myForm += "</select> - </td><td><select id=\"hour\" name=\"hour\">";
+for(var i=0; i<=24; i++){ myForm+='<option value="'+i+'">'+twodigits(i) }
+myForm+= "</select> : </td><td> <select id=\"minute\" name=\"minute\">";
+      for(var i=0; i<=59; i++){ myForm+='<option value="'+i+'">'+twodigits(i) }
+myForm+= "</select> : </td><td> <select id=\"second\" name=\"second\">";
+      for(var i=0; i<=59; i++){ myForm+='<option value="'+i+'">'+twodigits(i) }
+myForm+= "</select></td><td><input type=\"submit\" value=\"To Milliseconds\" onclick=\"displayTime(); return false;\" /></td></tr></table></form>";
+document.getElementById("theform").innerHTML=myForm;
+}
+-->
+ </script>
+</head>
+<body>
+<h1>Convert Human Time to UNIX Time</h1>
+
+<p>Takes a date and converts it to unix time.</p>
+<div id="theform"></div>
+<p> Result: </p>
+<div id="result"></div>
+<p>To convert from UNIX time to Human readable time use this <a href="unixtime.html">page</a>
+</p> <p> UNIX time (also known as POSIX time) is the number of milliseconds since the Unix epoch.   The Unix epoch is the time 00:00:00 UTC on January 1, 1970.   See <a href="http://en.wikipedia.org/wiki/Unix_time"> Wikipedia</a> for more details.
+ </p>
+
+ <script type="text/javascript">
+	buildForm(); 
+ </script>
+
+</body>
+</html>

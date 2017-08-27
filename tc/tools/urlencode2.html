@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>URL Encode and Decode Page</title>
+ <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+ <script type="text/javascript">
+ function codeIt(encode)
+ {
+    var text=document.getElementById("text").value;
+	var destination=document.getElementById("result");
+	if (encode==true) {
+		text="escape results = " + escape(text) + " encodeURIComponent resultsi = " + encodeURIComponent(text) + " encodeURI results = " + encodeURI(text);
+	} else {
+		text=unescape(text);
+	}
+	var newText = document.createTextNode(text);
+
+	//put together the bold bit
+	destination.appendChild(newText);
+	destination.appendChild(document.createElement("br"));
+ }
+ 
+ </script>
+</head>
+<body>
+<h1>URL Encode and Decode Page</h1>
+
+<p>A simple page for encoding or decoding 1 or more URLs.   Results continue to append to the bottom of the page.</p>
+
+<p>Enter the URL text to Encode Or Decode: </p>
+<form  action="/urlencodeisbroken">
+<input type="text" id="text" />
+<input type="submit" value="Encode" onclick="codeIt(true); return false;" />
+<input type="submit" value="Decode" onclick="codeIt(false); return false;" />
+</form>
+<p> Result: </p>
+<div id="result"></div>
+
+</body>
+</html>
